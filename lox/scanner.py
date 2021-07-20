@@ -63,6 +63,7 @@ class Scanner:
         self.line = 1
 
     def scan_tokens(self) -> list[Token]:
+        """Scans tokens from source and returns tokens"""
         while not self.is_at_end:
             self.start = self.current
             self.scan_token()
