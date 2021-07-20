@@ -35,3 +35,11 @@ def report(line: int, where: str, message: str) -> None:
     global had_error
     print(f'[line {line}] Error{where}: {message}')
     had_error = True
+
+
+__all__ = [
+    'run_prompt',
+    'run_file',
+    'run',
+    'error',
+]
