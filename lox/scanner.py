@@ -53,7 +53,7 @@ class Scanner:
         'var':      TokenType.VAR,
         'while':    TokenType.WHILE,
     }
-    whitespace = {' ', '\r', '\t'}
+    whitespace = {' ', '\r', '\t', '\f', '\v'}
 
     def __init__(self, source: str):
         self.source = source
@@ -85,7 +85,7 @@ class Scanner:
             if self.match('/'):
                 while self.peek() != '\n' and not self.is_at_end:
                     self.advance()
-            if self.match('*'):
+            elif self.match('*'):
                 # Block comments can be nested
                 level = 1
                 while level:
@@ -121,7 +121,7 @@ class Scanner:
     def string(self) -> None:
         while self.peek() != '"' and not self.is_at_end:
             if self.peek() == '\n':
-                line += 1
+                self.line += 1
             self.advance()
 
         if self.is_at_end:
@@ -193,3 +193,8 @@ class Scanner:
     def add_token(self, type: TokenType, literal: Any = None) -> None:
         text = self.source[self.start:self.current]
         self.tokens.append(Token(type, text, literal, self.line))
+
+
+__all__ = [
+    'Scanner',
+]

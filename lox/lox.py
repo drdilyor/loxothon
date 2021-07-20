@@ -17,7 +17,10 @@ def run_prompt() -> None:
     global had_error
     while True:
         print(end='> ')
-        run(input())
+        try:
+            run(input())
+        except KeyboardInterrupt:
+            break
         had_error = False
 
 
