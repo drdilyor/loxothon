@@ -42,7 +42,10 @@ class Parser:
         return e
 
     def expression(self) -> expr.Expr:
-        return self.equality()
+        return self.comma()
+
+    def comma(self) -> expr.Expr:
+        return self.binary_left(self.equality, TT.COMMA)
 
     def equality(self) -> expr.Expr:
         return self.binary_left(self.comparison, TT.BANG_EQUAL, TT.EQUAL_EQUAL)
