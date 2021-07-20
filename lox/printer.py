@@ -10,6 +10,9 @@ class AstPrinter(expr.Visitor[str]):
     def visitBinaryExpr(self, e: expr.Binary) -> str:
         return self.parens(e.operator.lexeme, e.left, e.right)
 
+    def visitConditionalExpr(self, e: expr.Conditional) -> str:
+        return self.parens('?:',  e.condition, e.then_branch, e.else_branch)
+
     def visitGroupingExpr(self, e: expr.Grouping) -> str:
         return self.parens('group', e.expression)
 
@@ -31,6 +34,7 @@ if __name__ == '__main__':
                 expr.Literal(123)),
             Token(TokenType.STAR, '*', None, 1),
             expr.Grouping(
-                expr.Literal(45.67)))))
-
-
+                expr.Conditional(
+                    expr.Literal(True),
+                    expr.Literal(42),
+                    expr.Literal(0))))))

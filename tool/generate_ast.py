@@ -2,6 +2,7 @@ import sys
 
 ast = {
     'Binary': ['left: Expr', 'operator: Token', 'right: Expr'],
+    'Conditional': ['condition: Expr', 'then_branch: Expr', 'else_branch: Expr'],
     'Grouping': ['expression: Expr'],
     'Literal': ['value: Any'],
     'Unary': ['operator: Token', 'right: Expr'],
@@ -28,8 +29,8 @@ for cls, fields in ast.items():
     for field in fields:
         f.write(f'    {field}\n')
     f.write('\n')
-    f.write(f"    def accept(self, visitor: 'Visitor[T]') -> T:")
-    f.write(f"        return visitor.visit{cls.capitalize()}{base}(self)")
+    f.write(f"    def accept(self, visitor: 'Visitor[T]') -> T:\n")
+    f.write(f"        return visitor.visit{cls.capitalize()}{base}(self)\n")
     f.write('\n')
 
 f.write(f"R = TypeVar('R')\n")

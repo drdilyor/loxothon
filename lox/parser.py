@@ -45,7 +45,19 @@ class Parser:
         return self.comma()
 
     def comma(self) -> expr.Expr:
-        return self.binary_left(self.equality, TT.COMMA)
+        return self.binary_left(self.conditional, TT.COMMA)
+
+    def conditional(self) -> expr.Expr:
+        e = self.equality()
+
+        if self.match(TT.QUESTION):
+            then_branch = self.expression()
+            self.consume(TT.COLON,
+                "Expect ':' after then branch of conditional expression")
+            else_branch = self.conditional()
+            e = expr.Conditional(e, then_branch, else_branch)
+
+        return e
 
     def equality(self) -> expr.Expr:
         return self.binary_left(self.comparison, TT.BANG_EQUAL, TT.EQUAL_EQUAL)

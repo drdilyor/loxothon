@@ -14,26 +14,44 @@ class Binary(Expr):
     operator: Token
     right: Expr
 
-    def accept(self, visitor: 'Visitor[T]') -> T:        return visitor.visitBinaryExpr(self)
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visitBinaryExpr(self)
+
+@dataclass
+class Conditional(Expr):
+    condition: Expr
+    then_branch: Expr
+    else_branch: Expr
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visitConditionalExpr(self)
+
 @dataclass
 class Grouping(Expr):
     expression: Expr
 
-    def accept(self, visitor: 'Visitor[T]') -> T:        return visitor.visitGroupingExpr(self)
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visitGroupingExpr(self)
+
 @dataclass
 class Literal(Expr):
     value: Any
 
-    def accept(self, visitor: 'Visitor[T]') -> T:        return visitor.visitLiteralExpr(self)
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visitLiteralExpr(self)
+
 @dataclass
 class Unary(Expr):
     operator: Token
     right: Expr
 
-    def accept(self, visitor: 'Visitor[T]') -> T:        return visitor.visitUnaryExpr(self)
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visitUnaryExpr(self)
+
 R = TypeVar('R')
 class Visitor(Generic[R]):
     def visitBinaryExpr(self, expr: Binary) -> R: ...
+    def visitConditionalExpr(self, expr: Conditional) -> R: ...
     def visitGroupingExpr(self, expr: Grouping) -> R: ...
     def visitLiteralExpr(self, expr: Literal) -> R: ...
     def visitUnaryExpr(self, expr: Unary) -> R: ...

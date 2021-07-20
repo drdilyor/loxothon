@@ -16,36 +16,38 @@ class TokenType(enum.Enum):
     SEMICOLON           = 9
     SLASH               = 10
     STAR                = 11
+    QUESTION            = 12
+    COLON               = 13
 
-    BANG                = 12
-    BANG_EQUAL          = 13
-    EQUAL               = 14
-    EQUAL_EQUAL         = 15
-    GREATER             = 16
-    GREATER_EQUAL       = 17
-    LESS                = 18
-    LESS_EQUAL          = 19
+    BANG                = 30
+    BANG_EQUAL          = 31
+    EQUAL               = 32
+    EQUAL_EQUAL         = 33
+    GREATER             = 34
+    GREATER_EQUAL       = 35
+    LESS                = 36
+    LESS_EQUAL          = 37
 
-    IDENTIFIER          = 20
-    STRING              = 21
-    NUMBER              = 22
+    IDENTIFIER          = 40
+    STRING              = 41
+    NUMBER              = 42
 
-    AND                 = 23
-    CLASS               = 24
-    ELSE                = 25
-    FALSE               = 26
-    FUN                 = 27
-    FOR                 = 28
-    IF                  = 29
-    NIL                 = 30
-    OR                  = 31
-    PRINT               = 32
-    RETURN              = 33
-    SUPER               = 34
-    THIS                = 35
-    TRUE                = 36
-    VAR                 = 37
-    WHILE               = 38
+    AND                 = 50
+    CLASS               = 50
+    ELSE                = 51
+    FALSE               = 52
+    FUN                 = 53
+    FOR                 = 54
+    IF                  = 55
+    NIL                 = 56
+    OR                  = 57
+    PRINT               = 58
+    RETURN              = 59
+    SUPER               = 60
+    THIS                = 61
+    TRUE                = 62
+    VAR                 = 63
+    WHILE               = 64
 
     EOF                 = 0
 

@@ -16,6 +16,8 @@ class Scanner:
         '+': TokenType.PLUS,
         ';': TokenType.SEMICOLON,
         '*': TokenType.STAR,
+        '?': TokenType.QUESTION,
+        ':': TokenType.COLON,
     }
     double_char = {
         '!': {
