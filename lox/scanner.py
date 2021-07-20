@@ -35,6 +35,24 @@ class Scanner:
             '=': TokenType.LESS_EQUAL,
         },
     }
+    keywords = {
+        'and':      TokenType.AND,
+        'class':    TokenType.CLASS,
+        'else':     TokenType.ELSE,
+        'false':    TokenType.FALSE,
+        'for':      TokenType.FOR,
+        'fun':      TokenType.FUN,
+        'if':       TokenType.IF,
+        'nil':      TokenType.NIL,
+        'or':       TokenType.OR,
+        'print':    TokenType.PRINT,
+        'return':   TokenType.RETURN,
+        'super':    TokenType.SUPER,
+        'this':     TokenType.THIS,
+        'true':     TokenType.TRUE,
+        'var':      TokenType.VAR,
+        'while':    TokenType.WHILE,
+    }
     whitespace = {' ', '\r', '\t'}
 
     def __init__(self, source: str):
@@ -67,6 +85,17 @@ class Scanner:
             if self.match('/'):
                 while self.peek() != '\n' and not self.is_at_end:
                     self.advance()
+            if self.match('*'):
+                level = 1
+                while level:
+                    if self.is_at_end:
+                        lox.error(self.line, 'Unterminated block comment.')
+                        break
+                    c = self.advance()
+                    if c == '*' and self.match('/'):
+                        level -= 1
+                    elif c == '/' and self.match('*'):
+                        level += 1
             else:
                 self.add_token(TokenType.SLASH)
 
@@ -82,17 +111,20 @@ class Scanner:
         elif self.is_digit(c):
             self.number()
 
+        elif self.is_alpha(c):
+            self.identifier()
+
         else:
             lox.error(self.line, 'Unexpected character.')
 
-    def string(self):
+    def string(self) -> None:
         while self.peek() != '"' and not self.is_at_end:
             if self.peek() == '\n':
                 line += 1
             self.advance()
 
         if self.is_at_end:
-            lox.error(line, 'Unterminated string.')
+            lox.error(self.line, 'Unterminated string.')
             return
 
         self.advance()
@@ -100,7 +132,7 @@ class Scanner:
         value = self.source[self.start + 1 : self.current - 1]
         self.add_token(TokenType.STRING, value)
 
-    def number(self):
+    def number(self) -> None:
         while self.is_digit(self.peek()):
             self.advance()
 
@@ -114,9 +146,15 @@ class Scanner:
 
         self.add_token(TokenType.NUMBER, float(self.source[self.start:self.current]))
 
+    def identifier(self):
+        while self.is_alnum(self.peek()):
+            self.advance()
+
+        text = self.source[self.start:self.current]
+        self.add_token(self.keywords.get(text, TokenType.IDENTIFIER))
 
     @property
-    def is_at_end(self):
+    def is_at_end(self) -> bool:
         return self.current >= len(self.source)
 
     def advance(self) -> str:
@@ -140,9 +178,17 @@ class Scanner:
         self.current += 1
         return True
 
-    def is_digit(self, c: str):
+    def is_digit(self, c: str) -> bool:
         return ord('0') <= ord(c) <= ord('9')
 
-    def add_token(self, type: TokenType, literal: Any = None):
+    def is_alpha(self, c: str) -> bool:
+        return ord('a') <= ord(c) <= ord('z') \
+            or ord('A') <= ord(c) <= ord('Z') \
+            or c == '_'
+
+    def is_alnum(self, c: str) -> bool:
+        return self.is_alpha(c) or self.is_digit(c)
+
+    def add_token(self, type: TokenType, literal: Any = None) -> None:
         text = self.source[self.start:self.current]
         self.tokens.append(Token(type, text, literal, self.line))
