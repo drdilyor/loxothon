@@ -1,6 +1,8 @@
 import sys
 
 from lox.scanner import Scanner
+from lox.parser import Parser
+from lox.printer import AstPrinter
 
 
 had_error = False
@@ -25,11 +27,19 @@ def run_prompt() -> None:
 
 
 def run(source) -> None:
+    global had_error
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
     for token in tokens:
         print(token)
+
+    expression = Parser(tokens).parse()
+    if had_error:
+        return
+
+    print(AstPrinter().print(expression))
+
 
 
 def error(line: int, message: str) -> None:
