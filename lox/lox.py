@@ -1,5 +1,7 @@
 import sys
 
+from lox.scanner import Scanner
+
 
 had_error = False
 
@@ -21,10 +23,10 @@ def run_prompt() -> None:
 
 def run(source) -> None:
     scanner = Scanner(source)
-    tokens = scanner.scanTokens()
+    tokens = scanner.scan_tokens()
 
     for token in tokens:
-        println(token)
+        print(token)
 
 
 def error(line: int, message: str) -> None:
