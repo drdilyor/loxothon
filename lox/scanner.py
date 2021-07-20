@@ -86,6 +86,7 @@ class Scanner:
                 while self.peek() != '\n' and not self.is_at_end:
                     self.advance()
             if self.match('*'):
+                # Block comments can be nested
                 level = 1
                 while level:
                     if self.is_at_end:
