@@ -35,6 +35,7 @@ class Scanner:
             '=': TokenType.LESS_EQUAL,
         },
     }
+    whitespace = {' ', '\r', '\t'}
 
     def __init__(self, source: str):
         self.source = source
@@ -54,17 +55,65 @@ class Scanner:
         c = self.advance()
         if c in self.single_char:
             self.add_token(self.single_char[c])
-            return
 
         elif c in self.double_char:
             m = self.double_char[c]
-            if not self.is_at_end and self.peek() in m:
+            if self.peek() in m:
                 self.add_token(m[self.advance()])
             else:
                 self.add_token(m[''])
+
+        elif c == '/':
+            if self.match('/'):
+                while self.peek() != '\n' and not self.is_at_end:
+                    self.advance()
+            else:
+                self.add_token(TokenType.SLASH)
+
+        elif c in self.whitespace:
+            pass
+
+        elif c == '\n':
+            self.line += 1
+
+        elif c == '"':
+            self.string()
+
+        elif self.is_digit(c):
+            self.number()
+
+        else:
+            lox.error(self.line, 'Unexpected character.')
+
+    def string(self):
+        while self.peek() != '"' and not self.is_at_end:
+            if self.peek() == '\n':
+                line += 1
+            self.advance()
+
+        if self.is_at_end:
+            lox.error(line, 'Unterminated string.')
             return
 
-        lox.error(self.line, 'Unexpected character.')
+        self.advance()
+
+        value = self.source[self.start + 1 : self.current - 1]
+        self.add_token(TokenType.STRING, value)
+
+    def number(self):
+        while self.is_digit(self.peek()):
+            self.advance()
+
+        # Look for a fraction part
+        if self.peek() == '.' and self.is_digit(self.peek_next()):
+            # consume the '.'
+            self.advance()
+
+            while self.is_digit(self.peek()):
+                self.advance()
+
+        self.add_token(TokenType.NUMBER, float(self.source[self.start:self.current]))
+
 
     @property
     def is_at_end(self):
@@ -76,8 +125,23 @@ class Scanner:
         return c
 
     def peek(self) -> str:
-        print(self.current)
+        if self.is_at_end:
+            return '\0'
         return self.source[self.current]
+
+    def peek_next(self) -> str:
+        if self.current + 1 >= len(self.source):
+            return '\0'
+        return self.source[self.current + 1]
+
+    def match(self, c: str) -> bool:
+        if self.is_at_end or self.source[self.current] != c:
+            return False
+        self.current += 1
+        return True
+
+    def is_digit(self, c: str):
+        return ord('0') <= ord(c) <= ord('9')
 
     def add_token(self, type: TokenType, literal: Any = None):
         text = self.source[self.start:self.current]
