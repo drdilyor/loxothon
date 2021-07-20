@@ -1,7 +1,8 @@
 from typing import Optional
 
-from lox.token import Token, TokenType as TT
 import lox.expr as expr
+import lox.lox as lox
+from lox.token import Token, TokenType as TT
 
 
 class ParseError(ValueError):
@@ -9,6 +10,15 @@ class ParseError(ValueError):
 
 
 class Parser:
+    syncpoints = {
+        TT.CLASS,
+        TT.VAR,
+        TT.FOR,
+        TT.IF,
+        TT.WHILE,
+        TT.PRINT,
+        TT.RETURN,
+    }
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.current = 0
@@ -17,6 +27,7 @@ class Parser:
         try:
             return self.expression()
         except ParseError as e:
+            print(e)
             return None
 
     def binary_left(self, upnext, *types: TT) -> expr.Expr:
@@ -70,6 +81,8 @@ class Parser:
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return expr.Grouping(e)
 
+        raise self.error(self.peek(), 'Unexpected expression.')
+
     @property
     def is_at_end(self) -> bool:
         return self.peek().type == TT.EOF
@@ -95,8 +108,21 @@ class Parser:
         return False
 
     def consume(self, type: TT, message: str) -> None:
-        if self.peek().type != type:
-            raise ParseError(message)
+        if self.peek().type == type:
+            return self.advance()
+        raise self.error(peek(), message)
+
+    def error(self, token: Token, message: str) -> ParseError:
+        lox.error_token(token, message)
+        return ParseError()
+
+    def synchronize(self) -> None:
+        self.advance()
+        while not self.is_at_end:
+            if (self.previous().type == TT.SEMICOLON
+                or self.peek().type in self.syncpoints):
+                return
+            self.advance()
 
 
-__all__ = ['Parser']
+__all__ = ['Parser', 'ParseError']
