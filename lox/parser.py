@@ -125,13 +125,13 @@ class Parser:
     def consume(self, type: TT, message: str) -> None:
         if self.peek().type == type:
             return self.advance()
-        raise self.error(peek(), message)
+        raise self.error(self.peek(), message)
 
     def error(self, token: Token, message: str) -> ParseError:
         lox.error_token(token, message)
         return ParseError()
 
-    def synchronize(self) -> None:
+    def synchronize(self) -> None:  # pragma: no cover
         self.advance()
         while not self.is_at_end:
             if (self.previous().type == TT.SEMICOLON

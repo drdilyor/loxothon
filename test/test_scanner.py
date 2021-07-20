@@ -21,7 +21,7 @@ def test_discards_whitespace():
 def test_unknown_char():
     tokens = Scanner('#\a\0').scan_tokens()
     assert len(tokens) - 1 == 0
-    assert lox.had_error == True
+    assert lox.had_error
 
 def test_single_char():
     source = '(){};+-*.,'
