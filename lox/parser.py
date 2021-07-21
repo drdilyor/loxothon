@@ -19,11 +19,13 @@ class Parser:
         TT.PRINT,
         TT.RETURN,
     }
+
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.current = 0
 
     def parse(self) -> Optional[expr.Expr]:
+        """Parses tokens and returns Expr"""
         try:
             return self.expression()
         except ParseError as e:
@@ -52,7 +54,8 @@ class Parser:
 
         if self.match(TT.QUESTION):
             then_branch = self.expression()
-            self.consume(TT.COLON,
+            self.consume(
+                TT.COLON,
                 "Expect ':' after then branch of conditional expression")
             else_branch = self.conditional()
             e = expr.Conditional(e, then_branch, else_branch)
@@ -115,14 +118,14 @@ class Parser:
 
     def match(self, *types: TT) -> bool:
         if self.is_at_end:
-            return
+            return False
 
         if self.peek().type in types:
             self.advance()
             return True
         return False
 
-    def consume(self, type: TT, message: str) -> None:
+    def consume(self, type: TT, message: str) -> Token:
         if self.peek().type == type:
             return self.advance()
         raise self.error(self.peek(), message)
@@ -135,7 +138,7 @@ class Parser:
         self.advance()
         while not self.is_at_end:
             if (self.previous().type == TT.SEMICOLON
-                or self.peek().type in self.syncpoints):
+               or self.peek().type in self.syncpoints):
                 return
             self.advance()
 

@@ -133,7 +133,8 @@ class Scanner:
 
         self.advance()
 
-        value = self.source[self.start + 1 : self.current - 1]
+        start, end = self.start + 1, self.current - 1
+        value = self.source[start:end]
         self.add_token(TokenType.STRING, value)
 
     def number(self) -> None:
@@ -148,7 +149,9 @@ class Scanner:
             while self.is_digit(self.peek()):
                 self.advance()
 
-        self.add_token(TokenType.NUMBER, float(self.source[self.start:self.current]))
+        self.add_token(TokenType.NUMBER, float(
+            self.source[self.start:self.current]
+        ))
 
     def identifier(self):
         while self.is_alnum(self.peek()):

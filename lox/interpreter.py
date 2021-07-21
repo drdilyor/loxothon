@@ -30,7 +30,10 @@ class Interpreter(expr.Visitor):
             try:
                 return a + b
             except TypeError:
-                raise LoxRuntimeError(e.operator, 'Operands must be two numbers or two strings')
+                raise LoxRuntimeError(
+                    e.operator,
+                    'Operands must be two numbers or two strings'
+                )
 
         if o == TT.EQUAL_EQUAL:
             return a == b
@@ -56,14 +59,14 @@ class Interpreter(expr.Visitor):
             return a > b
         if o == TT.GREATER_EQUAL:
             return a >= b
-        if o == TT.LESS:    
+        if o == TT.LESS:
             return a < b
         if o == TT.LESS_EQUAL:
             return a <= b
-        raise ValueError('hmmm')
+        # unreachable
 
     def visitConditionalExpr(self, e: expr.Conditional):
-        if e.condition.accept(self):
+        if self.is_truthy(e.condition.accept(self)):
             return e.then_branch.accept(self)
         else:
             return e.else_branch.accept(self)
@@ -78,14 +81,14 @@ class Interpreter(expr.Visitor):
         a = e.right.accept(self)
         o = e.operator.type
         if o == TT.BANG:
-            return not self.is_truthy(o)
+            return not self.is_truthy(a)
         if o == TT.MINUS:
             if not isinstance(a, float):
                 raise LoxRuntimeError(e.operator, "Operand must be a number.")
             return -a
         # unreachable
 
-    def is_thuthy(self, obj):
+    def is_truthy(self, obj):
         if obj is None:
             return False
         if obj is False:
@@ -97,4 +100,9 @@ class Interpreter(expr.Visitor):
             return 'nil'
         if isinstance(obj, float):
             return format(obj, 'g')
+        if isinstance(obj, bool):
+            return ('false', 'true')[obj]
         return str(obj)
+
+
+__all__ = ['Interpreter', 'LoxRuntimeError']

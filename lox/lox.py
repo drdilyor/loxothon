@@ -10,6 +10,7 @@ from lox.token import Token, TokenType
 had_error = False
 had_runtime_error = False
 
+
 def run_file(path: str) -> None:
     with open(path) as f:
         code = f.read()
