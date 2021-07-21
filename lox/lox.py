@@ -1,5 +1,6 @@
 import sys
 
+from lox.interpreter import Interpreter, LoxRuntimeError
 from lox.scanner import Scanner
 from lox.parser import Parser
 from lox.printer import AstPrinter
@@ -7,27 +8,31 @@ from lox.token import Token, TokenType
 
 
 had_error = False
+had_runtime_error = False
 
 def run_file(path: str) -> None:
     with open(path) as f:
         code = f.read()
-    run(code)
+    run(code, Interpreter())
     if had_error:
         sys.exit(65)
+    if had_runtime_error:
+        sys.exit(70)
 
 
 def run_prompt() -> None:
     global had_error
+    interpreter = Interpreter()
     while True:
         print(end='> ')
         try:
-            run(input())
+            run(input(), interpreter)
         except KeyboardInterrupt:
             break
         had_error = False
 
 
-def run(source) -> None:
+def run(source: str, interpreter: Interpreter) -> None:
     global had_error
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
@@ -40,7 +45,7 @@ def run(source) -> None:
         return
 
     print(AstPrinter().print(expression))
-
+    interpreter.interpret(expression)
 
 
 def error(line: int, message: str) -> None:
@@ -52,6 +57,12 @@ def error_token(token: Token, message: str) -> None:
         report(token.line, ' at end', message)
     else:
         report(token.line, f" at '{token.lexeme}'", message)
+
+
+def runtime_error(e: LoxRuntimeError):
+    global had_runtime_error
+    print(f'[line {e.token.line}] {e.message}')
+    had_runtime_error = True
 
 
 def report(line: int, where: str, message: str) -> None:
