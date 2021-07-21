@@ -6,7 +6,8 @@ from lox import lox
 
 # this assumes scanner and parser don't have bugs
 def evaluate(s):
-    return Interpreter().evaluate(Parser(Scanner(s).scan_tokens()).parse())
+    # note that evaluate and expression is private api
+    return Interpreter().evaluate(Parser(Scanner(s).scan_tokens()).expression())
 
 
 @pytest.mark.parametrize('s,expected', [
@@ -49,26 +50,3 @@ def code(source: str) -> list[str]:
 def test_errors(s):
     with pytest.raises(LoxRuntimeError):
         assert evaluate(s) is None
-
-@pytest.mark.parametrize('s,expected', [
-    ('nil', 'nil'),
-    ('0', '0'),
-    ('0.0', '0'),
-    ('999.99', '999.99'),
-    ('"string"', 'string'),
-    ('true', 'true'),  # No capital letters!
-    ('false', 'false'),
-])
-def test_interpret_method(s, expected, capsys):
-    # Note that stringify is private api
-
-    Interpreter().interpret(Parser(Scanner(s).scan_tokens()).parse())
-    assert capsys.readouterr().out == expected + '\n'
-
-
-def test_interpret_method_error(capsys):
-    s = '-"muffin"'
-    Interpreter().interpret(Parser(Scanner(s).scan_tokens()).parse())
-    assert 'line' in capsys.readouterr().out
-    assert lox.had_runtime_error
-

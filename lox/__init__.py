@@ -1,10 +1,12 @@
+# noqa
 from lox.lox import *
 from lox.interpreter import *
 from lox.parser import *
 from lox.printer import *
 from lox.scanner import *
 from lox.token import *
-from lox import expr, interpreter, lox, parser, printer, scanner, token
+from lox import expr, stmt
+from lox import interpreter, lox, parser, printer, scanner, token
 
 __all__ = (
     lox .__all__

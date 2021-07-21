@@ -41,12 +41,12 @@ def run(source: str, interpreter: Interpreter) -> None:
     for token in tokens:
         print(token)
 
-    expression = Parser(tokens).parse()
+    statements = Parser(tokens).parse()
     if had_error:
         return
 
-    print(AstPrinter().print(expression))
-    interpreter.interpret(expression)
+    print(AstPrinter().print(statements))
+    interpreter.interpret(statements)
 
 
 def error(line: int, message: str) -> None:

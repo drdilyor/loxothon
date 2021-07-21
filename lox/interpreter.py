@@ -1,5 +1,6 @@
 import lox.expr as expr
 import lox.lox as lox
+import lox.stmt as stmt
 from lox.token import Token, TokenType as TT
 
 
@@ -10,19 +11,30 @@ class LoxRuntimeError(Exception):
         super().__init__(message)
 
 
-class Interpreter(expr.Visitor):
-    def interpret(self, expression: expr.Expr):
+class Interpreter(expr.Visitor, stmt.Visitor[None]):
+    def interpret(self, statements: list[stmt.Stmt]) -> None:
         """Interprets expression and reports if runtime error occured"""
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for s in statements:
+                self.execute(s)
+
         except LoxRuntimeError as e:
             lox.runtime_error(e)
 
-    def evaluate(self, expression):
+    def execute(self, s: stmt.Stmt) -> None:
+        return s.accept(self)
+
+    def visit_expression_stmt(self, s: stmt.Expression) -> None:
+        self.evaluate(s.expression)
+
+    def visit_print_stmt(self, s: stmt.Print) -> None:
+        value = self.evaluate(s.expression)
+        print(self.stringify(value))
+
+    def evaluate(self, expression: expr.Expr):
         return expression.accept(self)
 
-    def visitBinaryExpr(self, e: expr.Binary):
+    def visit_binary_expr(self, e: expr.Binary):
         a, b = e.left.accept(self), e.right.accept(self)
         o = e.operator.type
 
@@ -65,19 +77,19 @@ class Interpreter(expr.Visitor):
             return a <= b
         # unreachable
 
-    def visitConditionalExpr(self, e: expr.Conditional):
+    def visit_conditional_expr(self, e: expr.Conditional):
         if self.is_truthy(e.condition.accept(self)):
             return e.then_branch.accept(self)
         else:
             return e.else_branch.accept(self)
 
-    def visitGroupingExpr(self, e: expr.Grouping):
+    def visit_grouping_expr(self, e: expr.Grouping):
         return e.expression.accept(self)
 
-    def visitLiteralExpr(self, e: expr.Literal):
+    def visit_literal_expr(self, e: expr.Literal):
         return e.value
 
-    def visitUnaryExpr(self, e: expr.Unary):
+    def visit_unary_expr(self, e: expr.Unary):
         a = e.right.accept(self)
         o = e.operator.type
         if o == TT.BANG:

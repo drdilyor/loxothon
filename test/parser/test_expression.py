@@ -1,9 +1,10 @@
 import pytest
-from lox import expr, Parser, Scanner, TokenType as TT
+from lox import expr, Parser, Scanner, TokenType as TT  # noqa
 import lox.lox as lox
 
-scan = lambda s: Scanner(s).scan_tokens()
-parse = lambda s: Parser(scan(s)).parse()
+scan = lambda s: Scanner(s).scan_tokens()  # noqa
+# note that expression is private api
+parse = lambda s: Parser(scan(s)).expression()  # noqa
 
 @pytest.fixture(autouse=True)
 def set_had_error_false():

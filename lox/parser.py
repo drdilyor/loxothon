@@ -1,7 +1,6 @@
-from typing import Optional
-
 import lox.expr as expr
 import lox.lox as lox
+import lox.stmt as stmt
 from lox.token import Token, TokenType as TT
 
 
@@ -24,13 +23,28 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> Optional[expr.Expr]:
-        """Parses tokens and returns Expr"""
-        try:
-            return self.expression()
-        except ParseError as e:
-            print(e)
-            return None
+    def parse(self) -> list[stmt.Stmt]:
+        """Parses tokens and returns Statement list"""
+        statements = []
+        while not self.is_at_end:
+            statements.append(self.statement())
+
+        return statements
+
+    def statement(self) -> stmt.Stmt:
+        if self.match(TT.PRINT):
+            return self.print_statement()
+        return self.expression_statement()
+
+    def print_statement(self) -> stmt.Stmt:
+        e = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after value.")
+        return stmt.Print(e)
+
+    def expression_statement(self) -> stmt.Stmt:
+        e = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after expression.")
+        return stmt.Expression(e)
 
     def binary_left(self, upnext, *types: TT) -> expr.Expr:
         # A helper for parsing left-associative binary expression
