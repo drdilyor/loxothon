@@ -121,3 +121,11 @@ def test_grouping_error(s):
 def test_conditional_error(s):
     assert parse(s) == None
     assert lox.had_error
+
+def test_aunt_sally():
+    e = parse('1 != 2 - 1 * -3')
+    assert e.operator.type == TT.BANG_EQUAL
+    assert e.right.operator.type == TT.MINUS
+    assert e.right.right.operator.type == TT.STAR
+    assert isinstance(e.right.right.right, expr.Unary)
+    assert e.right.right.right.operator.type == TT.MINUS
