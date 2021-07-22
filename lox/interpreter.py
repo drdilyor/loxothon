@@ -1,3 +1,5 @@
+from typing import Optional
+
 import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt
@@ -19,6 +21,14 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
         except LoxRuntimeError as e:
             lox.runtime_error(e)
+
+    def interpret_expression(self, expression: expr.Expr) -> Optional[str]:
+        """Evaluates expression and returns stringified value"""
+        try:
+            return self.stringify(self.evaluate(expression))
+        except LoxRuntimeError as e:
+            lox.runtime_error(e)
+            return None
 
     def execute(self, s: stmt.Stmt) -> None:
         return s.accept(self)

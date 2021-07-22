@@ -1,3 +1,5 @@
+from typing import Union
+
 import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt
@@ -22,12 +24,28 @@ class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.current = 0
+        # Took a look into answers - I couldn't implement it myself 😅
+        self.allow_expressions = False
+        self.found_expression = False
 
     def parse(self) -> list[stmt.Stmt]:
         """Parses tokens and returns Statement list"""
         statements = []
         while not self.is_at_end:
             statements.append(self.declaration())
+
+        return statements
+
+    def parse_repl(self) -> Union[list[stmt.Stmt], expr.Expr]:
+        self.allow_expressions = True
+        statements = []
+        while not self.is_at_end:
+            statements.append(self.declaration())
+
+            if self.found_expression:
+                e: stmt.Expression = statements[-1]  # noqa
+                return e.expression
+            self.allow_expressions = False
 
         return statements
 
@@ -59,7 +77,10 @@ class Parser:
 
     def expression_statement(self) -> stmt.Stmt:
         e = self.expression()
-        self.consume(TT.SEMICOLON, "Expect ';' after expression.")
+        if self.allow_expressions and self.is_at_end:
+            self.found_expression = True
+        else:
+            self.consume(TT.SEMICOLON, "Expect ';' after expression.")
         return stmt.Expression(e)
 
     def block(self):

@@ -23,6 +23,8 @@ def run_file(path: str) -> None:
 
 
 def run_prompt() -> None:
+    import lox.stmt as stmt
+
     global had_error
     interpreter = Interpreter()
     debug = False
@@ -34,27 +36,39 @@ def run_prompt() -> None:
                 debug = True
                 print('turned debug on')
             else:
-                run(source, interpreter, debug)
+
+                tokens = Scanner(source).scan_tokens()
+                if debug:
+                    for token in tokens:
+                        print(token)
+
+                statements = Parser(tokens).parse_repl()
+                if debug:
+                    print(AstPrinter().print(statements))
+
+                if had_error:
+                    continue
+
+                if isinstance(statements, list):
+                    interpreter.interpret(statements)
+                else:
+                    value = interpreter.interpret_expression(statements)
+                    print(f'= {interpreter.stringify(value)}')
+
         except KeyboardInterrupt:
             break
         had_error = False
 
 
-def run(source: str, interpreter: Interpreter, debug = False) -> None:
+def run(source: str, interpreter: Interpreter) -> None:
     global had_error
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
-
-    if debug:
-        for token in tokens:
-            print(token)
 
     statements = Parser(tokens).parse()
     if had_error:
         return
 
-    if debug:
-        print(AstPrinter().print(statements))
     interpreter.interpret(statements)
 
 
