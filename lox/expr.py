@@ -51,6 +51,15 @@ class Literal(Expr):
         return visitor.visit_literal_expr(self)
 
 @dataclass
+class Logical(Expr):
+    left: Expr
+    operator: Token
+    right: Expr
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_logical_expr(self)
+
+@dataclass
 class Unary(Expr):
     operator: Token
     right: Expr
@@ -78,6 +87,8 @@ class Visitor(Generic[R], ABC):
     def visit_grouping_expr(self, e: Grouping) -> R: ...
     @abstractmethod
     def visit_literal_expr(self, e: Literal) -> R: ...
+    @abstractmethod
+    def visit_logical_expr(self, e: Logical) -> R: ...
     @abstractmethod
     def visit_unary_expr(self, e: Unary) -> R: ...
     @abstractmethod

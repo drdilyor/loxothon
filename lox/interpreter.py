@@ -125,6 +125,16 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_literal_expr(self, e: expr.Literal):
         return e.value
 
+    def visit_logical_expr(self, e: expr.Logical):
+        left = self.evaluate(e.left)
+        if e.operator.type == TT.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+        return self.evaluate(e.right)
+
     def visit_unary_expr(self, e: expr.Unary):
         a = e.right.accept(self)
         o = e.operator.type

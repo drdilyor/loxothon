@@ -101,14 +101,17 @@ class Parser:
         self.consume(TT.RIGHT_BRACE, "Expect '}' after block.")
         return statements
 
-    def binary_left(self, upnext, *types: TT) -> expr.Expr:
+    def binary_left(
+        self, upnext, types: tuple[TT, ...],
+        expr_class: type[Union[expr.Binary, expr.Logical]] = expr.Binary
+    ) -> expr.Expr:
         # A helper for parsing left-associative binary expression
         e = upnext()
 
         while self.match(*types):
             operator = self.previous()
             right = upnext()
-            e = expr.Binary(e, operator, right)
+            e = expr_class(e, operator, right)  # noqa
 
         return e
 
@@ -116,7 +119,7 @@ class Parser:
         return self.comma()
 
     def comma(self):
-        return self.binary_left(self.assignment, TT.COMMA)
+        return self.binary_left(self.assignment, (TT.COMMA,))
 
     def assignment(self) -> expr.Expr:
         e = self.conditional()
@@ -133,7 +136,7 @@ class Parser:
         return e
 
     def conditional(self) -> expr.Expr:
-        e = self.equality()
+        e = self.logic_or()
 
         if self.match(TT.QUESTION):
             then_branch = self.expression()
@@ -145,18 +148,24 @@ class Parser:
 
         return e
 
+    def logic_or(self) -> expr.Expr:
+        return self.binary_left(self.logic_and, (TT.OR,), expr.Logical)
+
+    def logic_and(self) -> expr.Expr:
+        return self.binary_left(self.equality, (TT.AND,), expr.Logical)
+
     def equality(self):
-        return self.binary_left(self.comparison, TT.BANG_EQUAL, TT.EQUAL_EQUAL)
+        return self.binary_left(self.comparison, (TT.BANG_EQUAL, TT.EQUAL_EQUAL))
 
     def comparison(self):
         return self.binary_left(
-            self.term, TT.GREATER, TT.GREATER_EQUAL, TT.LESS, TT.LESS_EQUAL)
+            self.term, (TT.GREATER, TT.GREATER_EQUAL, TT.LESS, TT.LESS_EQUAL))
 
     def term(self):
-        return self.binary_left(self.factor, TT.MINUS, TT.PLUS)
+        return self.binary_left(self.factor, (TT.MINUS, TT.PLUS))
 
     def factor(self):
-        return self.binary_left(self.unary, TT.SLASH, TT.STAR)
+        return self.binary_left(self.unary, (TT.SLASH, TT.STAR))
 
     def unary(self) -> expr.Expr:
         if self.match(TT.BANG, TT.MINUS):

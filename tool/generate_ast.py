@@ -50,6 +50,7 @@ define_ast('expr.py', 'Expr', {
     'Conditional': ['condition: Expr', 'then_branch: Expr', 'else_branch: Expr'],
     'Grouping': ['expression: Expr'],
     'Literal': ['value: Any'],
+    'Logical': ['left: Expr', 'operator: Token', 'right: Expr'],
     'Unary': ['operator: Token', 'right: Expr'],
     'Variable': ['name: Token'],
 }, imports=[
