@@ -1,0 +1,27 @@
+#!/bin/bash
+files-git() {
+  git ls-tree HEAD --name-only -r
+}
+
+case $1 in
+  v|verbose) verbose=1
+esac
+
+echo '=== LINES OF NON-EMPTY CODE ==='
+
+files-git | xargs cat | grep -Ev '^\s*$' | wc -l
+
+echo '=== FULL LINES OF CODE ==='
+if [[ $verbose == 1 ]]; then
+  files-git | xargs wc -l | sort -n
+else
+  files-git | xargs cat | wc -l
+fi
+
+echo '=== BYTES WRITTEN ==='
+
+if [[ $verbose == 1 ]]; then
+  files-git | xargs wc -c | sort -n
+else
+  files-git | xargs cat | wc -c
+fi

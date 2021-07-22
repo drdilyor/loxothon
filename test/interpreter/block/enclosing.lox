@@ -1,0 +1,4 @@
+var a = "global";
+{
+  print a; // expect: global
+}

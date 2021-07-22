@@ -1,0 +1,3 @@
+// expect: runtime-error
+print a;
+var a = "message";
