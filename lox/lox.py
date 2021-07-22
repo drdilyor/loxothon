@@ -24,28 +24,36 @@ def run_file(path: str) -> None:
 def run_prompt() -> None:
     global had_error
     interpreter = Interpreter()
+    debug = False
     while True:
         print(end='> ')
         try:
-            run(input(), interpreter)
+            source = input()
+            if source == '.debug on':
+                debug = True
+                print('turned debug on')
+            else:
+                run(source, interpreter, debug)
         except KeyboardInterrupt:
             break
         had_error = False
 
 
-def run(source: str, interpreter: Interpreter) -> None:
+def run(source: str, interpreter: Interpreter, debug = False) -> None:
     global had_error
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    for token in tokens:
-        print(token)
+    if debug:
+        for token in tokens:
+            print(token)
 
     statements = Parser(tokens).parse()
     if had_error:
         return
 
-    print(AstPrinter().print(statements))
+    if debug:
+        print(AstPrinter().print(statements))
     interpreter.interpret(statements)
 
 

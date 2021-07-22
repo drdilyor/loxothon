@@ -27,9 +27,23 @@ class Parser:
         """Parses tokens and returns Statement list"""
         statements = []
         while not self.is_at_end:
-            statements.append(self.statement())
+            statements.append(self.declaration())
 
         return statements
+
+    def declaration(self) -> stmt.Stmt:
+        try:
+            if self.match(TT.VAR):
+                return self.var_declaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+
+    def var_declaration(self) -> stmt.Stmt:
+        name = self.consume(TT.IDENTIFIER, 'Expect variable name.')
+        initializer = self.expression() if self.match(TT.EQUAL) else None
+        self.consume(TT.SEMICOLON, "Expect ';' after variable declaration.")
+        return stmt.Var(name, initializer)
 
     def statement(self) -> stmt.Stmt:
         if self.match(TT.PRINT):
@@ -107,6 +121,9 @@ class Parser:
 
         if self.match(TT.NUMBER, TT.STRING):
             return expr.Literal(self.previous().literal)
+
+        if self.match(TT.IDENTIFIER):
+            return expr.Variable(self.previous())
 
         if self.match(TT.LEFT_PAREN):
             e = self.expression()
