@@ -2,6 +2,7 @@ import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt
 from lox.environment import Environment
+from lox.stmt import Block, R
 from lox.token import TokenType as TT
 from lox.error import LoxRuntimeError
 
@@ -21,6 +22,18 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
     def execute(self, s: stmt.Stmt) -> None:
         return s.accept(self)
+
+    def execute_block(self, statements: list[stmt.Stmt], environment: Environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
+    def visit_block_stmt(self, s: stmt.Block) -> None:
+        self.execute_block(s.statements, Environment(self.environment))
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.evaluate(s.expression)

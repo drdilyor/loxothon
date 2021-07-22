@@ -48,6 +48,8 @@ class Parser:
     def statement(self) -> stmt.Stmt:
         if self.match(TT.PRINT):
             return self.print_statement()
+        if self.match(TT.LEFT_BRACE):
+            return stmt.Block(self.block())
         return self.expression_statement()
 
     def print_statement(self) -> stmt.Stmt:
@@ -59,6 +61,14 @@ class Parser:
         e = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after expression.")
         return stmt.Expression(e)
+
+    def block(self):
+        statements = []
+        while not self.is_at_end and self.peek().type != TT.RIGHT_BRACE:
+            statements.append(self.declaration())
+
+        self.consume(TT.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
 
     def binary_left(self, upnext, *types: TT) -> expr.Expr:
         # A helper for parsing left-associative binary expression

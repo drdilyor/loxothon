@@ -57,6 +57,7 @@ define_ast('expr.py', 'Expr', {
 ])
 
 define_ast('stmt.py', 'Stmt', {
+    'Block': ['statements: list[Stmt]'],
     'Expression': ['expression: Expr'],
     'Print': ['expression: Expr'],
     'Var': ['name: Token', 'initializer: Optional[Expr]'],

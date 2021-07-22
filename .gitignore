@@ -10,3 +10,5 @@ db.sqlite3
 .coverage
 .pytest_cache
 htmlcov
+
+scratch.lox
