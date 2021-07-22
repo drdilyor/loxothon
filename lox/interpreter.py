@@ -1,17 +1,15 @@
 import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt
-from lox.token import Token, TokenType as TT
+from lox.environment import Environment
+from lox.token import TokenType as TT
+from lox.error import LoxRuntimeError
 
 
-class LoxRuntimeError(Exception):
-    def __init__(self, token: Token, message: str):
-        self.token = token
-        self.message = message
-        super().__init__(message)
+class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
+    def __init__(self):
+        self.environment = Environment()
 
-
-class Interpreter(expr.Visitor, stmt.Visitor[None]):
     def interpret(self, statements: list[stmt.Stmt]) -> None:
         """Interprets expression and reports if runtime error occured"""
         try:
@@ -30,6 +28,11 @@ class Interpreter(expr.Visitor, stmt.Visitor[None]):
     def visit_print_stmt(self, s: stmt.Print) -> None:
         value = self.evaluate(s.expression)
         print(self.stringify(value))
+
+    def visit_var_stmt(self, s: stmt.Var) -> None:
+        self.environment.define(
+            s.name.lexeme,
+            self.evaluate(s.initializer) if s.initializer else None)
 
     def evaluate(self, expression: expr.Expr):
         return expression.accept(self)
@@ -100,6 +103,9 @@ class Interpreter(expr.Visitor, stmt.Visitor[None]):
             return -a
         # unreachable
 
+    def visit_variable_expr(self, e: expr.Variable):
+        return self.environment.get(e.name)
+
     def is_truthy(self, obj):
         if obj is None:
             return False
@@ -117,4 +123,4 @@ class Interpreter(expr.Visitor, stmt.Visitor[None]):
         return str(obj)
 
 
-__all__ = ['Interpreter', 'LoxRuntimeError']
+__all__ = ['Interpreter']

@@ -1,6 +1,7 @@
 import sys
 
-from lox.interpreter import Interpreter, LoxRuntimeError
+from lox.interpreter import Interpreter
+from lox.error import LoxRuntimeError
 from lox.scanner import Scanner
 from lox.parser import Parser
 from lox.printer import AstPrinter
