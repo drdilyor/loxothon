@@ -71,11 +71,25 @@ class Parser:
 
         return e
 
-    def expression(self) -> expr.Expr:
+    def expression(self):
         return self.comma()
 
-    def comma(self) -> expr.Expr:
-        return self.binary_left(self.conditional, TT.COMMA)
+    def comma(self):
+        return self.binary_left(self.assignment, TT.COMMA)
+
+    def assignment(self) -> expr.Expr:
+        e = self.conditional()
+
+        if self.match(TT.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(e, expr.Variable):
+                return expr.Assign(e.name, value)
+
+            self.error(equals, 'Invalid assignment target.')
+
+        return e
 
     def conditional(self) -> expr.Expr:
         e = self.equality()
@@ -90,17 +104,17 @@ class Parser:
 
         return e
 
-    def equality(self) -> expr.Expr:
+    def equality(self):
         return self.binary_left(self.comparison, TT.BANG_EQUAL, TT.EQUAL_EQUAL)
 
-    def comparison(self) -> expr.Expr:
+    def comparison(self):
         return self.binary_left(
             self.term, TT.GREATER, TT.GREATER_EQUAL, TT.LESS, TT.LESS_EQUAL)
 
-    def term(self) -> expr.Expr:
+    def term(self):
         return self.binary_left(self.factor, TT.MINUS, TT.PLUS)
 
-    def factor(self) -> expr.Expr:
+    def factor(self):
         return self.binary_left(self.unary, TT.SLASH, TT.STAR)
 
     def unary(self) -> expr.Expr:

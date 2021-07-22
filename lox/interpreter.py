@@ -37,6 +37,9 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def evaluate(self, expression: expr.Expr):
         return expression.accept(self)
 
+    def visit_assign_expr(self, e: expr.Assign):
+        self.environment.assign(e.name, value)
+
     def visit_binary_expr(self, e: expr.Binary):
         a, b = e.left.accept(self), e.right.accept(self)
         o = e.operator.type
