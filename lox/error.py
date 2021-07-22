@@ -8,4 +8,8 @@ class LoxRuntimeError(Exception):
         super().__init__(message)
 
 
-__all__ = ['LoxRuntimeError']
+class LoxStopIteration(Exception):
+    pass
+
+
+__all__ = ['LoxRuntimeError', 'LoxStopIteration']

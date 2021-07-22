@@ -1,0 +1,10 @@
+while (true) {
+  print "outer enter"; // expect: outer enter
+  while (true) {
+    print "inner enter"; // expect: inner enter
+    break;
+    print "inner leave";
+  }
+  print "outer leave"; // expect: outer leave
+  break;
+}

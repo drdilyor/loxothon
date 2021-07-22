@@ -11,6 +11,9 @@ class AstPrinter(expr.Visitor[str], stmt.Visitor[str]):
     def parens(self, name: str, *exprs: expr.Expr) -> str:
         return f'({name} {" ".join(i.accept(self) for i in exprs)})'
 
+    def visit_break_stmt(self, s: stmt.Break) -> str:
+        return '(break)'
+
     def visit_block_stmt(self, s: stmt.Block) -> str:
         result = '\n'.join(i.accept(self) for i in s.statements)
         result = '\n'.join('  ' + i for i in result.split('\n'))

@@ -33,21 +33,22 @@ class TokenType(enum.Enum):
     NUMBER              = 42
 
     AND                 = 50
-    CLASS               = 50
-    ELSE                = 51
-    FALSE               = 52
-    FUN                 = 53
-    FOR                 = 54
-    IF                  = 55
-    NIL                 = 56
-    OR                  = 57
-    PRINT               = 58
-    RETURN              = 59
-    SUPER               = 60
-    THIS                = 61
-    TRUE                = 62
-    VAR                 = 63
-    WHILE               = 64
+    BREAK               = 51
+    CLASS               = 52
+    ELSE                = 53
+    FALSE               = 54
+    FUN                 = 55
+    FOR                 = 56
+    IF                  = 57
+    NIL                 = 58
+    OR                  = 59
+    PRINT               = 60
+    RETURN              = 61
+    SUPER               = 62
+    THIS                = 63
+    TRUE                = 64
+    VAR                 = 65
+    WHILE               = 66
 
     EOF                 = 0
 

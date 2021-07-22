@@ -19,6 +19,13 @@ class Block(Stmt):
         return visitor.visit_block_stmt(self)
 
 @dataclass
+class Break(Stmt):
+    pass
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_break_stmt(self)
+
+@dataclass
 class Expression(Stmt):
     expression: Expr
 
@@ -62,6 +69,8 @@ R = TypeVar('R')
 class Visitor(Generic[R], ABC):
     @abstractmethod
     def visit_block_stmt(self, s: Block) -> R: ...
+    @abstractmethod
+    def visit_break_stmt(self, s: Break) -> R: ...
     @abstractmethod
     def visit_expression_stmt(self, s: Expression) -> R: ...
     @abstractmethod

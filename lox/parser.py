@@ -28,6 +28,8 @@ class Parser:
         self.allow_expressions = False
         self.found_expression = False
 
+        self.loop_depth = 0
+
     def parse(self) -> list[stmt.Stmt]:
         """Parses tokens and returns Statement list"""
         statements = []
@@ -64,6 +66,8 @@ class Parser:
         return stmt.Var(name, initializer)
 
     def statement(self) -> stmt.Stmt:
+        if self.match(TT.BREAK):
+            return self.break_statement()
         if self.match(TT.FOR):
             return self.for_statement()
         if self.match(TT.IF):
@@ -75,6 +79,12 @@ class Parser:
         if self.match(TT.LEFT_BRACE):
             return stmt.Block(self.block())
         return self.expression_statement()
+
+    def break_statement(self) -> stmt.Stmt:
+        self.consume(TT.SEMICOLON, "Expect ';' after 'break'.")
+        if not self.loop_depth:
+            return self.error(self.previous(), 'Break outside a loop.')  # noqa
+        return stmt.Break()
 
     def for_statement(self) -> stmt.Stmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'for'.")
@@ -125,8 +135,14 @@ class Parser:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'while'.")
         condition = self.expression()
         self.consume(TT.RIGHT_PAREN, "Expect ')' after condition.")
-        body = self.statement()
-        return stmt.While(condition, body)
+        try:
+            last_loop_depth = self.loop_depth
+            self.loop_depth += 1
+
+            body = self.statement()
+            return stmt.While(condition, body)
+        finally:
+            self.loop_depth = last_loop_depth
 
     def expression_statement(self) -> stmt.Stmt:
         e = self.expression()

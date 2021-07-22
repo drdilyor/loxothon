@@ -4,7 +4,7 @@ import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt  # noqa
 from lox.environment import Environment
-from lox.error import LoxRuntimeError
+from lox.error import LoxRuntimeError, LoxStopIteration
 from lox.token import TokenType as TT
 
 
@@ -43,6 +43,9 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         finally:
             self.environment = previous
 
+    def visit_break_stmt(self, s: stmt.Break) -> None:
+        raise LoxStopIteration()
+
     def visit_block_stmt(self, s: stmt.Block) -> None:
         self.execute_block(s.statements, Environment(self.environment))
 
@@ -52,7 +55,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_if_stmt(self, s: stmt.If) -> None:
         if self.is_truthy(self.evaluate(s.condition)):
             self.execute(s.then_branch)
-        else:
+        elif s.else_branch:
             self.execute(s.else_branch)
 
     def visit_print_stmt(self, s: stmt.Print) -> None:
@@ -61,7 +64,10 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
     def visit_while_stmt(self, s: stmt.While) -> None:
         while self.is_truthy(self.evaluate(s.condition)):
-            self.execute(s.body)
+            try:
+                self.execute(s.body)
+            except LoxStopIteration:
+                break
 
     def visit_var_stmt(self, s: stmt.Var) -> None:
         self.environment.define(

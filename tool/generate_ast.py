@@ -27,7 +27,7 @@ def define_ast(file, base: str, ast: dict[str, list[str]], imports: list[tuple[s
     for cls, fields in ast.items():
         f.write(f'@dataclass\n')
         f.write(f'class {cls}({base}):\n')
-        for field in fields:
+        for field in fields or ['pass']:
             f.write(f'    {field}\n')
         f.write('\n')
         f.write(f"    def accept(self, visitor: 'Visitor[T]') -> T:\n")
@@ -59,6 +59,7 @@ define_ast('expr.py', 'Expr', {
 
 define_ast('stmt.py', 'Stmt', {
     'Block': ['statements: list[Stmt]'],
+    'Break': [],
     'Expression': ['expression: Expr'],
     'If': ['condition: Expr', 'then_branch: Stmt', 'else_branch: Stmt'],
     'Print': ['expression: Expr'],
