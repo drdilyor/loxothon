@@ -1,0 +1,8 @@
+var sum = 0;
+var max = 10;
+
+for (; max > 0; max = max - 1) {
+  sum = sum + max;
+}
+
+print sum; // expect: 55

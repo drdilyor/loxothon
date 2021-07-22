@@ -2,12 +2,26 @@
 files-git() {
   git ls-tree HEAD --name-only -r
 }
+files-source() {
+  find lox -name '*.py'
+}
 
 case $1 in
   v|verbose) verbose=1
 esac
 
-echo '=== LINES OF NON-EMPTY CODE ==='
+echo '=== NON-EMPTY LINES OF SOURCE CODE ==='
+
+files-source | xargs cat | grep -Ev '^\s*$' | wc -l
+
+echo '=== TOTAL LINES OF SOURCE CODE ==='
+if [[ $verbose == 1 ]]; then
+  files-source | xargs wc -l | sort -n
+else
+  files-source | xargs cat | wc -l
+fi
+
+echo '=== NON-EMPTY LINES OF CODE ==='
 
 files-git | xargs cat | grep -Ev '^\s*$' | wc -l
 
@@ -18,7 +32,7 @@ else
   files-git | xargs cat | wc -l
 fi
 
-echo '=== BYTES WRITTEN ==='
+echo '=== BYTES TYPED OUT ==='
 
 if [[ $verbose == 1 ]]; then
   files-git | xargs wc -c | sort -n

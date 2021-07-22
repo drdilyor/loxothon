@@ -198,7 +198,8 @@ class Parser:
         return self.binary_left(self.equality, (TT.AND,), expr.Logical)
 
     def equality(self):
-        return self.binary_left(self.comparison, (TT.BANG_EQUAL, TT.EQUAL_EQUAL))
+        return self.binary_left(self.comparison,
+                                (TT.BANG_EQUAL, TT.EQUAL_EQUAL))
 
     def comparison(self):
         return self.binary_left(

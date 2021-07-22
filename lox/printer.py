@@ -16,14 +16,20 @@ class AstPrinter(expr.Visitor[str], stmt.Visitor[str]):
         result = '\n'.join('  ' + i for i in result.split('\n'))
         return f'(block \n{result})'
 
-    def visit_var_stmt(self, s: stmt.Var) -> str:
-        return self.parens(f'var {s.name}', s.initializer)
-
     def visit_expression_stmt(self, s: stmt.Expression) -> str:
         return self.parens('expression', s.expression)
 
+    def visit_if_stmt(self, s: stmt.If) -> str:
+        return self.parens('if', s.condition, s.then_branch, s.else_branch)
+
     def visit_print_stmt(self, s: stmt.Print) -> str:
         return self.parens('print', s.expression)
+
+    def visit_var_stmt(self, s: stmt.Var) -> str:
+        return self.parens(f'var {s.name}', s.initializer)
+
+    def visit_while_stmt(self, s: stmt.While) -> str:
+        return self.parens('while', s.condition, s.body)
 
     def visit_assign_expr(self, e: expr.Assign) -> str:
         return self.parens(f'= {e.name}', e.value)
@@ -40,11 +46,14 @@ class AstPrinter(expr.Visitor[str], stmt.Visitor[str]):
     def visit_literal_expr(self, e: expr.Literal) -> str:
         return 'nil' if e.value is None else str(e.value)
 
-    def visit_variable_expr(self, e: expr.Variable) -> str:
-        return f'(variable {e.name.lexeme})'
+    def visit_logical_expr(self, e: expr.Logical) -> str:
+        return self.parens(e.operator.lexeme, e.left, e.right)
 
     def visit_unary_expr(self, e: expr.Unary) -> str:
         return self.parens(e.operator.lexeme, e.right)
+
+    def visit_variable_expr(self, e: expr.Variable) -> str:
+        return f'(variable {e.name.lexeme})'
 
 
 __all__ = ['AstPrinter']

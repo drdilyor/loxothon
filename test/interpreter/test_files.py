@@ -9,6 +9,12 @@ expect_error = object()
 expect_runtime_error = object()
 
 
+@pytest.fixture(autouse=True)
+def reset_had_error():
+    lox.had_error = False
+    lox.had_runtime_error = False
+
+
 def gather_tests():
     cdir = Path(__file__).parent.absolute()
     results = []
@@ -30,11 +36,14 @@ def gather_tests():
 
 @pytest.mark.parametrize('s,expect', gather_tests())
 def test_interpreter(s, expect, capsys):
-    Interpreter().interpret(Parser(Scanner(s).scan_tokens()).parse())
+    statements = Parser(Scanner(s).scan_tokens()).parse()
+    if lox.had_error:
+        assert expect is expect_error
+        return
+
+    Interpreter().interpret(statements)
     if expect is expect_runtime_error:
         assert lox.had_runtime_error
-    elif expect is expect_error:
-        assert lox.had_error
     else:
         assert capsys.readouterr().out == expect
 

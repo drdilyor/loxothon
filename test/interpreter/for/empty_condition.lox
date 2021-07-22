@@ -1,0 +1,7 @@
+// expect: runtime-error
+
+// lox doesn't support break yet so the only way to know
+// if body executes is to raise error
+for (var i = 0;; i = i + 1) {
+  print nil + 42;
+}

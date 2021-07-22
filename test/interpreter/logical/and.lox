@@ -1,0 +1,2 @@
+print nil and "yes"; // expect: nil
+print true and true; // expect: true

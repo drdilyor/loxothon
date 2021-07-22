@@ -1,0 +1,6 @@
+var i = 0;
+
+true or (i = i + 1);
+false and (i = i + 1);
+
+print i; // expect: 0

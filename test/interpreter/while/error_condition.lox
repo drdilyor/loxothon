@@ -1,0 +1,4 @@
+// expect: error
+while (print "not an expr"; ) {
+  print "boo";
+}

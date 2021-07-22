@@ -1,0 +1,6 @@
+if (false) {
+  print "not ok..";
+}
+else {
+  print "ok"; // expect: ok
+}
