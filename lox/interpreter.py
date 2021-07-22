@@ -49,6 +49,12 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.evaluate(s.expression)
 
+    def visit_if_stmt(self, s: stmt.If) -> None:
+        if self.is_truthy(self.evaluate(s.condition.accept(self))):
+            self.execute(s.then_branch)
+        else:
+            self.execute(s.else_branch)
+
     def visit_print_stmt(self, s: stmt.Print) -> None:
         value = self.evaluate(s.expression)
         print(self.stringify(value))
@@ -108,7 +114,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         # unreachable
 
     def visit_conditional_expr(self, e: expr.Conditional):
-        if self.is_truthy(e.condition.accept(self)):
+        if self.is_truthy(self.evaluate(e.condition.accept(self))):
             return e.then_branch.accept(self)
         else:
             return e.else_branch.accept(self)

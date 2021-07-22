@@ -59,6 +59,7 @@ define_ast('expr.py', 'Expr', {
 define_ast('stmt.py', 'Stmt', {
     'Block': ['statements: list[Stmt]'],
     'Expression': ['expression: Expr'],
+    'If': ['condition: Expr', 'then_branch: Stmt', 'else_branch: Stmt'],
     'Print': ['expression: Expr'],
     'Var': ['name: Token', 'initializer: Optional[Expr]'],
 }, imports=[
