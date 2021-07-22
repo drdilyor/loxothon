@@ -49,6 +49,14 @@ class Var(Stmt):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_var_stmt(self)
 
+@dataclass
+class While(Stmt):
+    condition: Expr
+    body: Stmt
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_while_stmt(self)
+
 R = TypeVar('R')
 
 class Visitor(Generic[R], ABC):
@@ -62,3 +70,5 @@ class Visitor(Generic[R], ABC):
     def visit_print_stmt(self, s: Print) -> R: ...
     @abstractmethod
     def visit_var_stmt(self, s: Var) -> R: ...
+    @abstractmethod
+    def visit_while_stmt(self, s: While) -> R: ...

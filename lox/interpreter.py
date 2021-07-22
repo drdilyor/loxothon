@@ -59,6 +59,10 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         value = self.evaluate(s.expression)
         print(self.stringify(value))
 
+    def visit_while_stmt(self, s: stmt.While) -> None:
+        while self.is_truthy(self.evaluate(s.condition)):
+            self.execute(s.body)
+
     def visit_var_stmt(self, s: stmt.Var) -> None:
         self.environment.define(
             s.name.lexeme,
