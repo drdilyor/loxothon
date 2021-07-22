@@ -6,7 +6,7 @@ from lox import lox
 
 # this assumes scanner and parser don't have bugs
 def evaluate(s):
-    # note that evaluate and expression is private api
+    # note that evaluate and expression are private api
     return Interpreter().evaluate(Parser(Scanner(s).scan_tokens()).expression())
 
 
@@ -35,7 +35,7 @@ def test_expressions(s, expected):
 def test_divide_by_zero():
     value = evaluate('42 / 0')
     assert isinstance(value, float)
-    assert value != value # only nan doesn't equal to itself!
+    assert value != value  # only nan doesn't equal to itself!
 
 
 def code(source: str) -> list[str]:

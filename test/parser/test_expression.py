@@ -1,10 +1,15 @@
 import pytest
-from lox import expr, Parser, Scanner, TokenType as TT  # noqa
+from lox import expr, Parser, Scanner, TokenType as TT, ParseError  # noqa
 import lox.lox as lox
 
 scan = lambda s: Scanner(s).scan_tokens()  # noqa
 # note that expression is private api
-parse = lambda s: Parser(scan(s)).expression()  # noqa
+def parse(s):
+    try:
+        return Parser(scan(s)).expression()
+    except ParseError:
+        return None
+
 
 @pytest.fixture(autouse=True)
 def set_had_error_false():
@@ -108,7 +113,7 @@ def test_binary_error(s):
 def test_grouping_error(s):
     assert parse(s) == None
     assert lox.had_error
-    
+
 
 @pytest.mark.parametrize('s', [
     '?:',
@@ -122,6 +127,7 @@ def test_grouping_error(s):
 def test_conditional_error(s):
     assert parse(s) == None
     assert lox.had_error
+
 
 def test_aunt_sally():
     e = parse('1 != 2 - 1 * -3')

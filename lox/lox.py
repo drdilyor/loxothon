@@ -23,8 +23,6 @@ def run_file(path: str) -> None:
 
 
 def run_prompt() -> None:
-    import lox.stmt as stmt
-
     global had_error
     interpreter = Interpreter()
     debug = False
@@ -44,7 +42,10 @@ def run_prompt() -> None:
 
                 statements = Parser(tokens).parse_repl()
                 if debug:
-                    print(AstPrinter().print(statements))
+                    if isinstance(statements, list):
+                        print(AstPrinter().print(statements))
+                    else:
+                        print(statements.accept(AstPrinter()))
 
                 if had_error:
                     continue

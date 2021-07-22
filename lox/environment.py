@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 from lox.error import LoxRuntimeError
 from lox.token import Token
@@ -16,6 +16,8 @@ class Environment:
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
         else:
+            if self.enclosing:
+                return self.enclosing.assign(name, value)
             raise LoxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
     def get(self, name: Token) -> object:

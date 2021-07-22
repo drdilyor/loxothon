@@ -1,0 +1,7 @@
+var a = "global";
+
+{
+  a = "mutated";
+}
+
+print a; // expect: mutated

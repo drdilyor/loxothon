@@ -2,11 +2,10 @@ from typing import Optional
 
 import lox.expr as expr
 import lox.lox as lox
-import lox.stmt as stmt
+import lox.stmt as stmt  # noqa
 from lox.environment import Environment
-from lox.stmt import Block, R
-from lox.token import TokenType as TT
 from lox.error import LoxRuntimeError
+from lox.token import TokenType as TT
 
 
 class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
@@ -33,7 +32,9 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def execute(self, s: stmt.Stmt) -> None:
         return s.accept(self)
 
-    def execute_block(self, statements: list[stmt.Stmt], environment: Environment):
+    def execute_block(self,
+                      statements: list[stmt.Stmt],
+                      environment: Environment):
         previous = self.environment
         try:
             self.environment = environment
@@ -61,7 +62,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         return expression.accept(self)
 
     def visit_assign_expr(self, e: expr.Assign):
-        self.environment.assign(e.name, value)
+        self.environment.assign(e.name, self.evaluate(e.value))
 
     def visit_binary_expr(self, e: expr.Binary):
         a, b = e.left.accept(self), e.right.accept(self)

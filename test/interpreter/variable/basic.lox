@@ -1,0 +1,2 @@
+var a = 42;
+print a; // expect: 42

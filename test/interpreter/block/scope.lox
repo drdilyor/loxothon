@@ -1,0 +1,8 @@
+var a = "global";
+
+{
+  var a = "local";
+  print a; // expect: local
+}
+
+print a; // expect: global

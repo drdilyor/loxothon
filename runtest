@@ -1,4 +1,10 @@
 #!/bin/bash
 source venv/bin/activate
-flake8 lox/interpreter.py lox/lox.py lox/parser.py lox/printer.py lox/scanner.py \
+flake8 lox/environment.py \
+       lox/error.py \
+       lox/interpreter.py \
+       lox/lox.py \
+       lox/parser.py \
+       lox/printer.py \
+       lox/scanner.py \
 && rm -f .coverage && coverage run -m pytest --capture=sys && coverage report -m
