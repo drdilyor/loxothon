@@ -64,6 +64,8 @@ class Parser:
         return stmt.Var(name, initializer)
 
     def statement(self) -> stmt.Stmt:
+        if self.match(TT.FOR):
+            return self.for_statement()
         if self.match(TT.IF):
             return self.if_statement()
         if self.match(TT.PRINT):
@@ -73,6 +75,38 @@ class Parser:
         if self.match(TT.LEFT_BRACE):
             return stmt.Block(self.block())
         return self.expression_statement()
+
+    def for_statement(self) -> stmt.Stmt:
+        self.consume(TT.LEFT_PAREN, "Expect '(' after 'for'.")
+
+        if self.match(TT.SEMICOLON):
+            initializer = None
+        elif self.match(TT.VAR):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+
+        condition = None
+        if not self.is_at_end and self.peek().type != TT.SEMICOLON:
+            condition = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after loop condition.")
+
+        increment = None
+        if not self.is_at_end and self.peek().type != TT.RIGHT_PAREN:
+            increment = self.expression()
+        self.consume(TT.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        body = self.statement()
+
+        if increment:
+            body = stmt.Block([body, stmt.Expression(increment)])
+
+        body = stmt.While(condition or expr.Literal(True), body)
+
+        if initializer:
+            body = stmt.Block([initializer, body])
+
+        return body
 
     def if_statement(self) -> stmt.If:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'if'.")
