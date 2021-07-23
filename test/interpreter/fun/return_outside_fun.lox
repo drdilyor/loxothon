@@ -1,0 +1,3 @@
+// expect: resolve-error
+
+return; // return is not allowed to not have fun

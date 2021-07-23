@@ -52,4 +52,9 @@ class LoxFunction(LoxCallable):
         return f'<fun {self.declaration.name.lexeme}>'
 
 
-__all__ = ['LoxCallable', 'LoxClock']
+__all__ = [
+    'LoxCallable',
+    'LoxClock',
+    'lox_clock',
+    'LoxFunction',
+]

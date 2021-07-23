@@ -1,0 +1,5 @@
+fun say_hello(name) {
+  print "Hello " + name;
+}
+
+say_hello("Lox"); // expect: Hello Lox

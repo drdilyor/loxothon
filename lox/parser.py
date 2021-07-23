@@ -28,8 +28,6 @@ class Parser:
         self.allow_expressions = False
         self.found_expression = False
 
-        self.loop_depth = 0
-
     def parse(self) -> list[stmt.Stmt]:
         """Parses tokens and returns Statement list"""
         statements = []
@@ -106,10 +104,9 @@ class Parser:
         return self.expression_statement()
 
     def break_statement(self) -> stmt.Stmt:
+        keyword = self.previous()
         self.consume(TT.SEMICOLON, "Expect ';' after 'break'.")
-        if not self.loop_depth:
-            return self.error(self.previous(), 'Break outside a loop.')  # noqa
-        return stmt.Break()
+        return stmt.Break(keyword)
 
     def for_statement(self) -> stmt.Stmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'for'.")
@@ -168,13 +165,8 @@ class Parser:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'while'.")
         condition = self.expression()
         self.consume(TT.RIGHT_PAREN, "Expect ')' after condition.")
-        try:
-            self.loop_depth += 1
-
-            body = self.statement()
-            return stmt.While(condition, body)
-        finally:
-            self.loop_depth -= 1
+        body = self.statement()
+        return stmt.While(condition, body)
 
     def expression_statement(self) -> stmt.Stmt:
         e = self.expression()
@@ -272,8 +264,9 @@ class Parser:
         while True:
             if self.match(TT.LEFT_PAREN):
                 e = self.finish_call(e)
+            # not sure why this is here
             else:
-                break
+                break  # pragma: no cover
         return e
 
     def finish_call(self, callee: expr.Expr):

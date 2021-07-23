@@ -51,6 +51,7 @@ def test_interpreter(s, expect, capsys):
         assert lox.had_error
         return
 
+    assert not lox.had_error
     interpreter.interpret(statements)
     if expect is expect_runtime_error:
         assert lox.had_runtime_error

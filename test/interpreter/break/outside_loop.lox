@@ -1,2 +1,2 @@
-// expect: error
+// expect: resolve-error
 break;

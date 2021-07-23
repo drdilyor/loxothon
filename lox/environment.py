@@ -23,7 +23,8 @@ class Environment:
             return self.values[name.lexeme]
         except KeyError:
             if self.enclosing:
-                return self.enclosing.get(name)
+                # this is not used anymore
+                return self.enclosing.get(name)  # pragma: no cover
             raise LoxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
     def get_at(self, distance: int, name: str) -> object:
@@ -34,7 +35,8 @@ class Environment:
             self.values[name.lexeme] = value
         else:
             if self.enclosing:
-                return self.enclosing.assign(name, value)
+                # this is not used anymore
+                return self.enclosing.assign(name, value)  # pragma: no cover
             raise LoxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
     def assign_at(self, distance: int, name: Token, value: object):

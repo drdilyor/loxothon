@@ -1,0 +1,7 @@
+// expect: resolve-error
+
+while (true) {
+  fun example() {
+    break;
+  }
+}

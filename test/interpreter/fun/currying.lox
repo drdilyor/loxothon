@@ -1,0 +1,12 @@
+fun add(a) {
+  fun _add(b) {
+    return a + b;
+  }
+  return _add;
+}
+
+print add(12)(3); // expect: 15
+
+var increment = add(1);
+print increment(42); // expect: 43
+

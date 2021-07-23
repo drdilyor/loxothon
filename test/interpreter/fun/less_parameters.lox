@@ -1,0 +1,4 @@
+// expect: runtime-error
+fun example(arg) {}
+
+example();

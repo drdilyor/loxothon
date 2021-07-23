@@ -1,0 +1,5 @@
+fun get_name() {
+  return "Lox";
+}
+
+print get_name(); // expect: Lox

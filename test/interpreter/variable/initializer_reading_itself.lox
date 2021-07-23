@@ -1,0 +1,5 @@
+// expect: resolve-error
+var a = 0;
+{
+  var a = a + 1;
+}

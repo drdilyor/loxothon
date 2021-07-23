@@ -29,6 +29,7 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
         self.interpreter = interpreter
         self.scopes: list[dict[str, bool]] = []
         self.current_function = FunctionType.NONE
+        self.loop_depth = 0
 
     def resolve(self, obj: Union[list[stmt.Stmt], stmt.Stmt, expr.Expr]):
         if isinstance(obj, list):
@@ -47,12 +48,16 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
 
     def resolve_function(self, function: stmt.Function, type: FunctionType):
         enclosing_function = self.current_function
+        self.current_function = type
+        previous_loop_depth = self.loop_depth
+        self.loop_depth = 0
         with self.make_scope():
             for param in function.params:
                 self.declare(param)
                 self.define(param)
             self.resolve(function.body)
         self.current_function = enclosing_function
+        self.loop_depth = previous_loop_depth
 
     def make_scope(self):
         return _ResolverMakeScope(self)
@@ -72,7 +77,8 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
             self.resolve(s.statements)
 
     def visit_break_stmt(self, s: stmt.Break) -> None:
-        pass
+        if not self.loop_depth:
+            lox.error_token(s.keyword, "Break outside a loop.")
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.resolve(s.expression)
@@ -104,8 +110,10 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
         self.define(s.name)
 
     def visit_while_stmt(self, s: stmt.While) -> None:
+        self.loop_depth += 1
         self.resolve(s.condition)
         self.resolve(s.body)
+        self.loop_depth -= 1
 
     def visit_assign_expr(self, e: expr.Assign) -> None:
         self.resolve(e.value)
