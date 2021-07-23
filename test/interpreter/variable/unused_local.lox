@@ -1,0 +1,5 @@
+// expect: resolve-error
+fun example() {
+    var a = "unused";
+}
+example();

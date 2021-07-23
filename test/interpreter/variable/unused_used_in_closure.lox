@@ -1,0 +1,13 @@
+// This ensures that lox doesn't erronously report unused variable if it
+// is used inside closure.
+
+fun make_counter() {
+  var count = 0;
+  fun counter() {
+    count = count + 1;
+    return count - 1;
+  }
+  return counter;
+}
+
+print make_counter()(); // expect: 0

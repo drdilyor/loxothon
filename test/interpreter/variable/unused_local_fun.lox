@@ -1,0 +1,4 @@
+// expect: resolve-error
+fun example() {
+  fun unused() {}
+}

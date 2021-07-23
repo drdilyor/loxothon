@@ -7,4 +7,5 @@ var a = "global";
   example(); // expect: global
   var a = "local";
   example(); // expect: global
+  print a; // expect: local
 }
