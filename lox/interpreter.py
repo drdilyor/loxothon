@@ -3,6 +3,7 @@ from typing import Optional
 import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt  # noqa
+from lox.callable import LoxCallable, lox_clock
 from lox.environment import Environment
 from lox.error import LoxRuntimeError, LoxStopIteration
 from lox.token import TokenType as TT
@@ -11,6 +12,7 @@ from lox.token import TokenType as TT
 class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def __init__(self):
         self.environment = Environment()
+        self.environment.define('clock', lox_clock)
 
     def interpret(self, statements: list[stmt.Stmt]) -> None:
         """Interprets expression and reports if runtime error occured"""
@@ -122,6 +124,22 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         if o == TT.LESS_EQUAL:
             return a <= b
         # unreachable
+
+    def visit_call_expr(self, e: expr.Call):
+        callee = self.evaluate(e.callee)
+        arguments = [self.evaluate(i) for i in e.arguments]
+
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeError(e.paren,
+                                  'Can only call functions and classes.')
+        function: LoxCallable = callee
+        if len(arguments) != function.arity():
+            raise LoxRuntimeError(
+                e.paren,
+                f'Expected {function.arity()} '
+                f'arguments but got {len(arguments)}.')
+
+        return function.call(self, arguments)
 
     def visit_conditional_expr(self, e: expr.Conditional):
         if self.is_truthy(self.evaluate(e.condition)):

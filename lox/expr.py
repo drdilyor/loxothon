@@ -28,6 +28,15 @@ class Binary(Expr):
         return visitor.visit_binary_expr(self)
 
 @dataclass
+class Call(Expr):
+    callee: Expr
+    paren: Token
+    arguments: list[Expr]
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_call_expr(self)
+
+@dataclass
 class Conditional(Expr):
     condition: Expr
     then_branch: Expr
@@ -81,6 +90,8 @@ class Visitor(Generic[R], ABC):
     def visit_assign_expr(self, e: Assign) -> R: ...
     @abstractmethod
     def visit_binary_expr(self, e: Binary) -> R: ...
+    @abstractmethod
+    def visit_call_expr(self, e: Call) -> R: ...
     @abstractmethod
     def visit_conditional_expr(self, e: Conditional) -> R: ...
     @abstractmethod
