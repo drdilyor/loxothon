@@ -6,7 +6,7 @@ import lox.stmt as stmt  # noqa
 from lox.callable import LoxCallable, lox_clock, LoxFunction
 from lox.environment import Environment
 from lox.error import LoxRuntimeError, LoxStopIteration, LoxReturn
-from lox.token import TokenType as TT
+from lox.token import TokenType as TT, Token
 
 
 class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
@@ -14,6 +14,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         self.globals = Environment()
         self.environment = self.globals
         self.environment.define('clock', lox_clock)
+        self.locals: dict[expr.Expr, int] = {}
 
     def interpret(self, statements: list[stmt.Stmt]) -> None:
         """Interprets expression and reports if runtime error occured"""
@@ -45,6 +46,9 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
                 self.execute(statement)
         finally:
             self.environment = previous
+
+    def resolve(self, e: expr.Expr, depth: int):
+        self.locals[e] = depth
 
     def visit_break_stmt(self, s: stmt.Break) -> None:
         raise LoxStopIteration()
@@ -89,7 +93,11 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         return expression.accept(self)
 
     def visit_assign_expr(self, e: expr.Assign):
-        self.environment.assign(e.name, self.evaluate(e.value))
+        value = self.evaluate(e.value)
+        if (distance := self.locals.get(e)) is not None:
+            return self.environment.assign_at(distance, e.name, value)
+        else:
+            return self.globals.assign(e.name, value)
 
     def visit_binary_expr(self, e: expr.Binary):
         a, b = e.left.accept(self), e.right.accept(self)
@@ -184,7 +192,13 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         # unreachable
 
     def visit_variable_expr(self, e: expr.Variable):
-        return self.environment.get(e.name)
+        return self.look_up_variable(e.name, e)
+
+    def look_up_variable(self, name: Token, e: expr.Expr):
+        if (distance := self.locals.get(e)) is not None:
+            return self.environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
 
     def is_truthy(self, obj):
         if obj is None:

@@ -1,0 +1,10 @@
+var a = "global";
+
+{
+  fun example() {
+    print a;
+  }
+  example(); // expect: global
+  var a = "local";
+  example(); // expect: global
+}

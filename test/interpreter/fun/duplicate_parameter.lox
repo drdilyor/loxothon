@@ -1,0 +1,4 @@
+// expect: resolve-error
+fun example(arg, arg) { }
+
+example(0, 0);

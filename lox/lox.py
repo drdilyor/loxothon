@@ -1,12 +1,11 @@
 import sys
 
-from lox.interpreter import Interpreter
 from lox.error import LoxRuntimeError
-from lox.scanner import Scanner
+from lox.interpreter import Interpreter
 from lox.parser import Parser
-from lox.printer import AstPrinter
+from lox.resolver import Resolver
+from lox.scanner import Scanner
 from lox.token import Token, TokenType
-
 
 had_error = False
 had_runtime_error = False
@@ -15,7 +14,7 @@ had_runtime_error = False
 def run_file(path: str) -> None:
     with open(path) as f:
         code = f.read()
-    run(code, Interpreter())
+    run(code)
     if had_error:
         sys.exit(65)
     if had_runtime_error:
@@ -25,6 +24,7 @@ def run_file(path: str) -> None:
 def run_prompt() -> None:
     global had_error
     interpreter = Interpreter()
+    resolver = Resolver(interpreter)
     debug = False
     while True:
         print(end='> ')
@@ -41,12 +41,11 @@ def run_prompt() -> None:
                         print(token)
 
                 statements = Parser(tokens).parse_repl()
-                if debug:
-                    if isinstance(statements, list):
-                        print(AstPrinter().print(statements))
-                    else:
-                        print(statements.accept(AstPrinter()))
 
+                if had_error:
+                    continue
+
+                resolver.resolve(statements)
                 if had_error:
                     continue
 
@@ -61,12 +60,18 @@ def run_prompt() -> None:
         had_error = False
 
 
-def run(source: str, interpreter: Interpreter) -> None:
+def run(source: str) -> None:
     global had_error
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
     statements = Parser(tokens).parse()
+    if had_error:
+        return
+
+    interpreter = Interpreter()
+    resolver = Resolver(interpreter)
+    resolver.resolve(statements)
     if had_error:
         return
 

@@ -25,7 +25,7 @@ def define_ast(file, base: str, ast: dict[str, list[str]], imports: list[tuple[s
     f.write(f'\n')
 
     for cls, fields in ast.items():
-        f.write(f'@dataclass\n')
+        f.write(f'@dataclass(eq=False, frozen=True)\n')
         f.write(f'class {cls}({base}):\n')
         for field in fields or ['pass']:
             f.write(f'    {field}\n')

@@ -10,7 +10,7 @@ T = TypeVar('T')
 class Expr:
     def accept(self, visitor: 'Visitor[T]') -> T: ...
 
-@dataclass
+@dataclass(frozen=True)
 class Assign(Expr):
     name: Token
     value: Expr
@@ -18,7 +18,7 @@ class Assign(Expr):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_assign_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Binary(Expr):
     left: Expr
     operator: Token
@@ -27,7 +27,7 @@ class Binary(Expr):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_binary_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Call(Expr):
     callee: Expr
     paren: Token
@@ -36,7 +36,7 @@ class Call(Expr):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_call_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Conditional(Expr):
     condition: Expr
     then_branch: Expr
@@ -45,21 +45,21 @@ class Conditional(Expr):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_conditional_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Grouping(Expr):
     expression: Expr
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_grouping_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Literal(Expr):
     value: Any
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_literal_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Logical(Expr):
     left: Expr
     operator: Token
@@ -68,7 +68,7 @@ class Logical(Expr):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_logical_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Unary(Expr):
     operator: Token
     right: Expr
@@ -76,7 +76,7 @@ class Unary(Expr):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_unary_expr(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Variable(Expr):
     name: Token
 

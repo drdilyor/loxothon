@@ -11,28 +11,28 @@ T = TypeVar('T')
 class Stmt:
     def accept(self, visitor: 'Visitor[T]') -> T: ...
 
-@dataclass
+@dataclass(frozen=True)
 class Block(Stmt):
     statements: list[Stmt]
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_block_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Break(Stmt):
     pass
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_break_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Expression(Stmt):
     expression: Expr
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_expression_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Function(Stmt):
     name: Token
     params: list[Token]
@@ -41,7 +41,7 @@ class Function(Stmt):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_function_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class If(Stmt):
     condition: Expr
     then_branch: Stmt
@@ -50,14 +50,14 @@ class If(Stmt):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_if_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Print(Stmt):
     expression: Expr
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_print_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Return(Stmt):
     keyword: Token
     value: Expr
@@ -65,7 +65,7 @@ class Return(Stmt):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_return_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class Var(Stmt):
     name: Token
     initializer: Optional[Expr]
@@ -73,7 +73,7 @@ class Var(Stmt):
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_var_stmt(self)
 
-@dataclass
+@dataclass(frozen=True)
 class While(Stmt):
     condition: Expr
     body: Stmt

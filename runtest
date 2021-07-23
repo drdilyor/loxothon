@@ -5,6 +5,5 @@ flake8 lox/environment.py \
        lox/interpreter.py \
        lox/lox.py \
        lox/parser.py \
-       lox/printer.py \
        lox/scanner.py \
 && rm -f .coverage && coverage run -m pytest --capture=sys && coverage report -m

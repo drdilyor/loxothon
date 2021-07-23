@@ -53,15 +53,49 @@ class TokenType(enum.Enum):
     EOF                 = 0
 
 
-@dataclass
+# HACK: setting eq to True breaks this program:
+#     for ( var i = 0; i < 10; i = i + 1 ) {
+#       print i;
+#     }
+# BUT the *exact* program with different whitespace WORKS:
+#     for (
+#       var i = 0;
+#       i < 10;
+#       i = i + 1
+#     ) {
+#       print i;
+#     }
+# WTF IS GOING ON HERE? Cue mind exploding...
+
+# OK, I dug a lot and found out... It is because Expr and Stmt are set eq=True
+# and hashing *different* variable expr with *different* token but with those
+# tokens having the same line number - returns the same number, the dict gets
+# confused and our lox program blows up.
+
+@dataclass(eq=False, frozen=True)
 class Token:
     type: TokenType
     lexeme: str
     literal: Optional[str]
     line: int
+    # def __init__(self, type, lexeme, literal, line):
+    #     self.type = type
+    #     self.lexeme = lexeme
+    #     self.literal = literal
 
     def __str__(self): # pragma: no cover
         return f'{self.type} {self.lexeme} {self.literal}'
+
+    # def __hash__(self):
+    #     return hash(self.type) ^ hash(self.lexeme) ^ hash(self.literal)
+    #
+    # def __eq__(self, other):
+    #     return self is other
+    #     return self.type == other.type and self.lexeme == other.lexeme and self.literal == other.literal
+
+    # @property
+    # def line(self):
+    #     return 0
 
 
 __all__ = [

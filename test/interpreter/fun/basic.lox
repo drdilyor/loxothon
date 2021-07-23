@@ -1,0 +1,6 @@
+fun example() {
+  print "hello world";
+}
+
+example(); // expect: hello world
+example(); // expect: hello world
