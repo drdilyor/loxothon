@@ -53,11 +53,34 @@ class Parser:
 
     def declaration(self) -> stmt.Stmt:
         try:
+            if self.match(TT.FUN):
+                return self.fun_declaration(kind='function')
             if self.match(TT.VAR):
                 return self.var_declaration()
             return self.statement()
         except ParseError:
             self.synchronize()
+
+    def fun_declaration(self, kind: str) -> stmt.Stmt:
+        name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')
+        self.consume(TT.LEFT_PAREN, f"Expect '(' {kind} name.")
+        parameters = []
+
+        if not self.is_at_end and self.peek().type == TT.RIGHT_PAREN:
+            first = True
+            while first or self.match(TT.COMMA):
+                first = False
+
+                if len(parameters) >= 255:
+                    self.error(self.peek(),
+                               "Can't have more than 255 parameters.")
+                parameters.append(self.consume(TT.IDENTIFIER,
+                                               'Expect parameter name'))
+        self.consume(TT.RIGHT_PAREN, "Expect ')' after parameters")
+
+        self.consume(TT.LEFT_BRACE, f"Expect '{{' before {kind} body.")
+        body = self.block()
+        return stmt.Function(name, parameters, body)
 
     def var_declaration(self) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, 'Expect variable name.')
@@ -136,13 +159,12 @@ class Parser:
         condition = self.expression()
         self.consume(TT.RIGHT_PAREN, "Expect ')' after condition.")
         try:
-            last_loop_depth = self.loop_depth
             self.loop_depth += 1
 
             body = self.statement()
             return stmt.While(condition, body)
         finally:
-            self.loop_depth = last_loop_depth
+            self.loop_depth -= 1
 
     def expression_statement(self) -> stmt.Stmt:
         e = self.expression()

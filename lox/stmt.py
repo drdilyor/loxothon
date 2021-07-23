@@ -33,6 +33,15 @@ class Expression(Stmt):
         return visitor.visit_expression_stmt(self)
 
 @dataclass
+class Function(Stmt):
+    name: Token
+    params: list[Token]
+    body: list[Stmt]
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_function_stmt(self)
+
+@dataclass
 class If(Stmt):
     condition: Expr
     then_branch: Stmt
@@ -73,6 +82,8 @@ class Visitor(Generic[R], ABC):
     def visit_break_stmt(self, s: Break) -> R: ...
     @abstractmethod
     def visit_expression_stmt(self, s: Expression) -> R: ...
+    @abstractmethod
+    def visit_function_stmt(self, s: Function) -> R: ...
     @abstractmethod
     def visit_if_stmt(self, s: If) -> R: ...
     @abstractmethod

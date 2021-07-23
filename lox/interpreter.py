@@ -11,7 +11,8 @@ from lox.token import TokenType as TT
 
 class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def __init__(self):
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
         self.environment.define('clock', lox_clock)
 
     def interpret(self, statements: list[stmt.Stmt]) -> None:

@@ -62,6 +62,7 @@ define_ast('stmt.py', 'Stmt', {
     'Block': ['statements: list[Stmt]'],
     'Break': [],
     'Expression': ['expression: Expr'],
+    'Function': ['name: Token', 'params: list[Token]', 'body: list[Stmt]'],
     'If': ['condition: Expr', 'then_branch: Stmt', 'else_branch: Stmt'],
     'Print': ['expression: Expr'],
     'Var': ['name: Token', 'initializer: Optional[Expr]'],
