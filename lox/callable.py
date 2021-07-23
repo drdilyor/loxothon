@@ -30,11 +30,12 @@ lox_clock = LoxClock()
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: stmt.Function):
+    def __init__(self, declaration: stmt.Function, closure: Environment):
         self.declaration = declaration
+        self.closure = closure
 
     def call(self, interpreter, arguments: list) -> object:
-        environment = Environment(interpreter.globals)
+        environment = Environment(self.closure)
         for param, argument in zip(self.declaration.params, arguments):
             environment.define(param.lexeme, argument)
 

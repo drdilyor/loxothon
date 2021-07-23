@@ -56,7 +56,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         self.evaluate(s.expression)
 
     def visit_function_stmt(self, s: stmt.Function) -> None:
-        function = LoxFunction(s)
+        function = LoxFunction(s, self.environment)
         self.environment.define(s.name.lexeme, function)
 
     def visit_if_stmt(self, s: stmt.If) -> None:
