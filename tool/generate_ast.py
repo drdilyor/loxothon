@@ -65,6 +65,7 @@ define_ast('stmt.py', 'Stmt', {
     'Function': ['name: Token', 'params: list[Token]', 'body: list[Stmt]'],
     'If': ['condition: Expr', 'then_branch: Stmt', 'else_branch: Stmt'],
     'Print': ['expression: Expr'],
+    'Return': ['keyword: Token', 'value: Expr'],
     'Var': ['name: Token', 'initializer: Optional[Expr]'],
     'While': ['condition: Expr', 'body: Stmt'],
 }, imports=[

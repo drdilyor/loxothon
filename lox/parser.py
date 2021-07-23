@@ -66,7 +66,7 @@ class Parser:
         self.consume(TT.LEFT_PAREN, f"Expect '(' {kind} name.")
         parameters = []
 
-        if not self.is_at_end and self.peek().type == TT.RIGHT_PAREN:
+        if not self.is_at_end and self.peek().type != TT.RIGHT_PAREN:
             first = True
             while first or self.match(TT.COMMA):
                 first = False
@@ -97,6 +97,8 @@ class Parser:
             return self.if_statement()
         if self.match(TT.PRINT):
             return self.print_statement()
+        if self.match(TT.RETURN):
+            return self.return_statement()
         if self.match(TT.WHILE):
             return self.while_statement()
         if self.match(TT.LEFT_BRACE):
@@ -153,6 +155,14 @@ class Parser:
         e = self.expression()
         self.consume(TT.SEMICOLON, "Expect ';' after value.")
         return stmt.Print(e)
+
+    def return_statement(self) -> stmt.Stmt:
+        keyword = self.previous()
+        value = None
+        if not self.is_at_end and self.peek().type != TT.SEMICOLON:
+            value = self.expression()
+        self.consume(TT.SEMICOLON, "Expect ';' after return value.")
+        return stmt.Return(keyword, value)
 
     def while_statement(self) -> stmt.Stmt:
         self.consume(TT.LEFT_PAREN, "Expect '(' after 'while'.")

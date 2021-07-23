@@ -58,6 +58,14 @@ class Print(Stmt):
         return visitor.visit_print_stmt(self)
 
 @dataclass
+class Return(Stmt):
+    keyword: Token
+    value: Expr
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_return_stmt(self)
+
+@dataclass
 class Var(Stmt):
     name: Token
     initializer: Optional[Expr]
@@ -88,6 +96,8 @@ class Visitor(Generic[R], ABC):
     def visit_if_stmt(self, s: If) -> R: ...
     @abstractmethod
     def visit_print_stmt(self, s: Print) -> R: ...
+    @abstractmethod
+    def visit_return_stmt(self, s: Return) -> R: ...
     @abstractmethod
     def visit_var_stmt(self, s: Var) -> R: ...
     @abstractmethod

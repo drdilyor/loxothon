@@ -17,6 +17,6 @@ __all__ = (
     + parser.__all__
     + printer.__all__
     + environment.__all__
-    + ['LoxRuntimeError', 'LoxStopIteration']
+    + ['LoxRuntimeError', 'LoxStopIteration', 'LoxReturn']
     + ['expr', 'stmt']
 )

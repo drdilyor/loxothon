@@ -3,9 +3,9 @@ from typing import Optional
 import lox.expr as expr
 import lox.lox as lox
 import lox.stmt as stmt  # noqa
-from lox.callable import LoxCallable, lox_clock
+from lox.callable import LoxCallable, lox_clock, LoxFunction
 from lox.environment import Environment
-from lox.error import LoxRuntimeError, LoxStopIteration
+from lox.error import LoxRuntimeError, LoxStopIteration, LoxReturn
 from lox.token import TokenType as TT
 
 
@@ -55,6 +55,10 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.evaluate(s.expression)
 
+    def visit_function_stmt(self, s: stmt.Function) -> None:
+        function = LoxFunction(s)
+        self.environment.define(s.name.lexeme, function)
+
     def visit_if_stmt(self, s: stmt.If) -> None:
         if self.is_truthy(self.evaluate(s.condition)):
             self.execute(s.then_branch)
@@ -64,6 +68,10 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_print_stmt(self, s: stmt.Print) -> None:
         value = self.evaluate(s.expression)
         print(self.stringify(value))
+
+    def visit_return_stmt(self, s: stmt.Return) -> None:
+        value = s.value and self.evaluate(s.value)
+        raise LoxReturn(value)
 
     def visit_while_stmt(self, s: stmt.While) -> None:
         while self.is_truthy(self.evaluate(s.condition)):
