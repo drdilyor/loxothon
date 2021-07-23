@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Union
 
 import lox.expr as expr
@@ -18,10 +19,16 @@ class _ResolverMakeScope:
         self.resolver.scopes.pop()
 
 
+class FunctionType(Enum):
+    NONE = 0
+    FUNCTION = 1
+
+
 class Resolver(expr.Visitor[None], stmt.Visitor[None]):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
         self.scopes: list[dict[str, bool]] = []
+        self.current_function = FunctionType.NONE
 
     def resolve(self, obj: Union[list[stmt.Stmt], stmt.Stmt, expr.Expr]):
         if isinstance(obj, list):
@@ -38,18 +45,22 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
                 break
             i -= 1
 
-    def resolve_function(self, function: stmt.Function):
+    def resolve_function(self, function: stmt.Function, type: FunctionType):
+        enclosing_function = self.current_function
         with self.make_scope():
             for param in function.params:
                 self.declare(param)
                 self.define(param)
             self.resolve(function.body)
+        self.current_function = enclosing_function
 
     def make_scope(self):
         return _ResolverMakeScope(self)
 
     def declare(self, name: Token):
         if self.scopes:
+            if name.lexeme in self.scopes[-1]:
+                lox.error_token(name, 'Already a variable with this name in this scope.')
             self.scopes[-1][name.lexeme] = False
 
     def define(self, name: Token):
@@ -69,7 +80,7 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
     def visit_function_stmt(self, s: stmt.Function) -> None:
         self.declare(s.name)
         self.define(s.name)
-        self.resolve_function(s)
+        self.resolve_function(s, FunctionType.FUNCTION)
 
     def visit_if_stmt(self, s: stmt.If) -> None:
         self.resolve(s.condition)
@@ -81,7 +92,10 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
         self.resolve(s.expression)
 
     def visit_return_stmt(self, s: stmt.Return) -> None:
-        self.resolve(s.value)
+        if self.current_function == FunctionType.NONE:
+            lox.error_token(s.keyword, "Can't return from top-level code.")
+        if s.value:
+            self.resolve(s.value)
 
     def visit_var_stmt(self, s: stmt.Var) -> None:
         self.declare(s.name)
