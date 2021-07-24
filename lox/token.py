@@ -78,24 +78,9 @@ class Token:
     lexeme: str
     literal: Optional[str]
     line: int
-    # def __init__(self, type, lexeme, literal, line):
-    #     self.type = type
-    #     self.lexeme = lexeme
-    #     self.literal = literal
 
-    def __str__(self): # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return f'{self.type} {self.lexeme} {self.literal}'
-
-    # def __hash__(self):
-    #     return hash(self.type) ^ hash(self.lexeme) ^ hash(self.literal)
-    #
-    # def __eq__(self, other):
-    #     return self is other
-    #     return self.type == other.type and self.lexeme == other.lexeme and self.literal == other.literal
-
-    # @property
-    # def line(self):
-    #     return 0
 
 
 __all__ = [

@@ -1,7 +1,6 @@
 from typing import Optional
 
-from lox.error import LoxRuntimeError
-from lox.token import Token
+import lox
 
 
 class Environment:
@@ -18,28 +17,30 @@ class Environment:
             environment = environment.enclosing
         return environment
 
-    def get(self, name: Token) -> object:
+    def get(self, name: 'lox.Token') -> object:
         try:
             return self.values[name.lexeme]
         except KeyError:
             if self.enclosing:
                 # this is not used anymore
                 return self.enclosing.get(name)  # pragma: no cover
-            raise LoxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
+            raise lox.LoxRuntimeError(
+                name, f"Undefined variable '{name.lexeme}'.")
 
     def get_at(self, distance: int, name: str) -> object:
         return self.ancestor(distance).values.get(name)
 
-    def assign(self, name: Token, value: object):
+    def assign(self, name: 'lox.Token', value: object):
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
         else:
             if self.enclosing:
                 # this is not used anymore
                 return self.enclosing.assign(name, value)  # pragma: no cover
-            raise LoxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
+            raise lox.LoxRuntimeError(
+                name, f"Undefined variable '{name.lexeme}'.")
 
-    def assign_at(self, distance: int, name: Token, value: object):
+    def assign_at(self, distance: int, name: 'lox.Token', value: object):
         self.ancestor(distance).values[name.lexeme] = value
 
 

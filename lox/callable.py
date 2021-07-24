@@ -2,21 +2,20 @@ from abc import ABC, abstractmethod
 import time
 
 import lox.stmt as stmt
-from lox.environment import Environment
-from lox.error import LoxReturn
+import lox
 
 
 class LoxCallable(ABC):
     @abstractmethod
-    def call(self, interpreter, # *the* type: Interpreter
-             arguments: list) -> object: ...
+    def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
+        ...
 
     @abstractmethod
     def arity(self) -> int: ...
 
 
 class LoxClock(LoxCallable):
-    def call(self, interpreter, arguments: list) -> object:
+    def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
         return time.time()
 
     def arity(self) -> int:
@@ -30,18 +29,18 @@ lox_clock = LoxClock()
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: stmt.Function, closure: Environment):
+    def __init__(self, declaration: stmt.Function, closure: 'lox.Environment'):
         self.declaration = declaration
         self.closure = closure
 
-    def call(self, interpreter, arguments: list) -> object:
-        environment = Environment(self.closure)
+    def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
+        environment = lox.Environment(self.closure)
         for param, argument in zip(self.declaration.params, arguments):
             environment.define(param.lexeme, argument)
 
         try:
             interpreter.execute_block(self.declaration.body, environment)
-        except LoxReturn as r:
+        except lox.LoxReturn as r:
             return r.value
         return None
 

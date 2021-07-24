@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List, Type, Tuple
 
 import lox.expr as expr
 import lox.lox as lox
@@ -21,14 +21,14 @@ class Parser:
         TT.RETURN,
     }
 
-    def __init__(self, tokens: list[Token]):
+    def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
         # Took a look into answers - I couldn't implement it myself 😅
         self.allow_expressions = False
         self.found_expression = False
 
-    def parse(self) -> list[stmt.Stmt]:
+    def parse(self) -> List[stmt.Stmt]:
         """Parses tokens and returns Statement list"""
         statements = []
         while not self.is_at_end:
@@ -36,7 +36,7 @@ class Parser:
 
         return statements
 
-    def parse_repl(self) -> Union[list[stmt.Stmt], expr.Expr]:
+    def parse_repl(self) -> Union[List[stmt.Stmt], expr.Expr]:
         self.allow_expressions = True
         statements = []
         while not self.is_at_end:
@@ -185,8 +185,8 @@ class Parser:
         return statements
 
     def binary_left(
-        self, upnext, types: tuple[TT, ...],
-        expr_class: type[Union[expr.Binary, expr.Logical]] = expr.Binary
+        self, upnext, types: Tuple[TT, ...],
+        expr_class: Type[Union[expr.Binary, expr.Logical]] = expr.Binary
     ) -> expr.Expr:
         # A helper for parsing left-associative binary expression
         e = upnext()

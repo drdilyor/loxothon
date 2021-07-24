@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from lox.token import Token, TokenType
 from lox import lox
@@ -65,7 +65,7 @@ class Scanner:
         self.current = 0
         self.line = 1
 
-    def scan_tokens(self) -> list[Token]:
+    def scan_tokens(self) -> List[Token]:
         """Scans tokens from source and returns tokens"""
         while not self.is_at_end:
             self.start = self.current

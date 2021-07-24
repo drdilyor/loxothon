@@ -1,11 +1,6 @@
 import sys
 
-from lox.error import LoxRuntimeError
-from lox.interpreter import Interpreter
-from lox.parser import Parser
-from lox.resolver import Resolver
-from lox.scanner import Scanner
-from lox.token import Token, TokenType
+import lox
 
 had_error = False
 had_runtime_error = False
@@ -23,8 +18,8 @@ def run_file(path: str) -> None:
 
 def run_prompt() -> None:
     global had_error
-    interpreter = Interpreter()
-    resolver = Resolver(interpreter)
+    interpreter = lox.Interpreter()
+    resolver = lox.Resolver(interpreter)
     debug = False
     while True:
         print(end='> ')
@@ -35,12 +30,12 @@ def run_prompt() -> None:
                 print('turned debug on')
             else:
 
-                tokens = Scanner(source).scan_tokens()
+                tokens = lox.Scanner(source).scan_tokens()
                 if debug:
                     for token in tokens:
                         print(token)
 
-                statements = Parser(tokens).parse_repl()
+                statements = lox.Parser(tokens).parse_repl()
 
                 if had_error:
                     continue
@@ -62,15 +57,15 @@ def run_prompt() -> None:
 
 def run(source: str) -> None:
     global had_error
-    scanner = Scanner(source)
+    scanner = lox.Scanner(source)
     tokens = scanner.scan_tokens()
 
-    statements = Parser(tokens).parse()
+    statements = lox.Parser(tokens).parse()
     if had_error:
         return
 
-    interpreter = Interpreter()
-    resolver = Resolver(interpreter)
+    interpreter = lox.Interpreter()
+    resolver = lox.Resolver(interpreter)
     resolver.resolve(statements)
     if had_error:
         return
@@ -82,14 +77,14 @@ def error(line: int, message: str) -> None:
     report(line, '', message)
 
 
-def error_token(token: Token, message: str) -> None:
-    if token.type == TokenType.EOF:
+def error_token(token: 'lox.Token', message: str) -> None:
+    if token.type == lox.TokenType.EOF:
         report(token.line, ' at end', message)
     else:
         report(token.line, f" at '{token.lexeme}'", message)
 
 
-def runtime_error(e: LoxRuntimeError):
+def runtime_error(e: 'lox.LoxRuntimeError'):
     global had_runtime_error
     print(f'[line {e.token.line}] {e.message}')
     had_runtime_error = True

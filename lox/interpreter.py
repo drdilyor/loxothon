@@ -1,44 +1,41 @@
-from typing import Optional
+from typing import Optional, Dict, List
 
+import lox
 import lox.expr as expr
-import lox.lox as lox
-import lox.stmt as stmt  # noqa
-from lox.callable import LoxCallable, lox_clock, LoxFunction
-from lox.environment import Environment
-from lox.error import LoxRuntimeError, LoxStopIteration, LoxReturn
+import lox.stmt as stmt
 from lox.token import TokenType as TT, Token
 
 
 class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def __init__(self):
-        self.globals = Environment()
+        self.globals = lox.Environment()
         self.environment = self.globals
-        self.environment.define('clock', lox_clock)
-        self.locals: dict[expr.Expr, int] = {}
+        self.environment.define('clock', lox.lox_clock)
+        self.locals: Dict[expr.Expr, int] = {}
 
-    def interpret(self, statements: list[stmt.Stmt]) -> None:
+    def interpret(self, statements: List[stmt.Stmt]) -> None:
         """Interprets expression and reports if runtime error occured"""
         try:
             for s in statements:
                 self.execute(s)
 
-        except LoxRuntimeError as e:
-            lox.runtime_error(e)
+        except lox.LoxRuntimeError as e:
+            lox.lox.runtime_error(e)
 
     def interpret_expression(self, expression: expr.Expr) -> Optional[str]:
         """Evaluates expression and returns stringified value"""
         try:
             return self.stringify(self.evaluate(expression))
-        except LoxRuntimeError as e:
-            lox.runtime_error(e)
+        except lox.LoxRuntimeError as e:
+            lox.lox.runtime_error(e)
             return None
 
     def execute(self, s: stmt.Stmt) -> None:
         return s.accept(self)
 
     def execute_block(self,
-                      statements: list[stmt.Stmt],
-                      environment: Environment):
+                      statements: List[stmt.Stmt],
+                      environment: lox.Environment):
         previous = self.environment
         try:
             self.environment = environment
@@ -51,16 +48,16 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         self.locals[e] = depth
 
     def visit_break_stmt(self, s: stmt.Break) -> None:
-        raise LoxStopIteration()
+        raise lox.LoxStopIteration()
 
     def visit_block_stmt(self, s: stmt.Block) -> None:
-        self.execute_block(s.statements, Environment(self.environment))
+        self.execute_block(s.statements, lox.Environment(self.environment))
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.evaluate(s.expression)
 
     def visit_function_stmt(self, s: stmt.Function) -> None:
-        function = LoxFunction(s, self.environment)
+        function = lox.LoxFunction(s, self.environment)
         self.environment.define(s.name.lexeme, function)
 
     def visit_if_stmt(self, s: stmt.If) -> None:
@@ -75,13 +72,13 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
     def visit_return_stmt(self, s: stmt.Return) -> None:
         value = s.value and self.evaluate(s.value)
-        raise LoxReturn(value)
+        raise lox.LoxReturn(value)
 
     def visit_while_stmt(self, s: stmt.While) -> None:
         while self.is_truthy(self.evaluate(s.condition)):
             try:
                 self.execute(s.body)
-            except LoxStopIteration:
+            except lox.LoxStopIteration:
                 break
 
     def visit_var_stmt(self, s: stmt.Var) -> None:
@@ -94,7 +91,8 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
     def visit_assign_expr(self, e: expr.Assign):
         value = self.evaluate(e.value)
-        if (distance := self.locals.get(e)) is not None:
+        distance = self.locals.get(e)
+        if distance is not None:
             return self.environment.assign_at(distance, e.name, value)
         else:
             return self.globals.assign(e.name, value)
@@ -107,7 +105,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
             try:
                 return a + b
             except TypeError:
-                raise LoxRuntimeError(
+                raise lox.LoxRuntimeError(
                     e.operator,
                     'Operands must be two numbers or two strings'
                 )
@@ -121,7 +119,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
         # Number only expressions
         if not (isinstance(a, float) and isinstance(b, float)):
-            raise LoxRuntimeError(e.operator, 'Operands must be numbers')
+            raise lox.LoxRuntimeError(e.operator, 'Operands must be numbers')
 
         if o == TT.MINUS:
             return a - b
@@ -146,12 +144,12 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         callee = self.evaluate(e.callee)
         arguments = [self.evaluate(i) for i in e.arguments]
 
-        if not isinstance(callee, LoxCallable):
-            raise LoxRuntimeError(e.paren,
-                                  'Can only call functions and classes.')
-        function: LoxCallable = callee
+        if not isinstance(callee, lox.LoxCallable):
+            raise lox.LoxRuntimeError(e.paren,
+                                      'Can only call functions and classes.')
+        function: lox.LoxCallable = callee
         if len(arguments) != function.arity():
-            raise LoxRuntimeError(
+            raise lox.LoxRuntimeError(
                 e.paren,
                 f'Expected {function.arity()} '
                 f'arguments but got {len(arguments)}.')
@@ -187,7 +185,8 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
             return not self.is_truthy(a)
         if o == TT.MINUS:
             if not isinstance(a, float):
-                raise LoxRuntimeError(e.operator, "Operand must be a number.")
+                raise lox.LoxRuntimeError(
+                    e.operator, "Operand must be a number.")
             return -a
         # unreachable
 
@@ -195,7 +194,8 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         return self.look_up_variable(e.name, e)
 
     def look_up_variable(self, name: Token, e: expr.Expr):
-        if (distance := self.locals.get(e)) is not None:
+        distance = self.locals.get(e)
+        if distance is not None:
             return self.environment.get_at(distance, name.lexeme)
         else:
             return self.globals.get(name)

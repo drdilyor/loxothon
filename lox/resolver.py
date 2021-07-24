@@ -1,11 +1,12 @@
 from enum import Enum
-from typing import Union
+from typing import List, Dict, Union
 
+import lox
 import lox.expr as expr
 import lox.stmt as stmt
-from lox import lox
-from lox.token import Token
-from lox.interpreter import *  # for type checks only
+# from lox import lox
+# from lox.token import Token
+# from lox.interpreter import *  # for type checks only
 
 
 class _ResolverMakeScope:
@@ -25,27 +26,27 @@ class FunctionType(Enum):
 
 
 class VarState:
-    def __init__(self, name: Token):
+    def __init__(self, name: 'lox.Token'):
         self.name = name
         self.defined = False
         self.used = False
 
 
 class Resolver(expr.Visitor[None], stmt.Visitor[None]):
-    def __init__(self, interpreter: Interpreter):
+    def __init__(self, interpreter: 'lox.Interpreter'):
         self.interpreter = interpreter
-        self.scopes: list[dict[str, VarState]] = []
+        self.scopes: List[Dict[str, VarState]] = []
         self.current_function = FunctionType.NONE
         self.loop_depth = 0
 
-    def resolve(self, obj: Union[list[stmt.Stmt], stmt.Stmt, expr.Expr]):
+    def resolve(self, obj: Union[List[stmt.Stmt], stmt.Stmt, expr.Expr]):
         if isinstance(obj, list):
             for i in obj:
                 i.accept(self)
         else:
             obj.accept(self)
 
-    def resolve_local(self, e: expr.Expr, name: Token, used=True):
+    def resolve_local(self, e: expr.Expr, name: 'lox.Token', used=True):
         i = len(self.scopes) - 1
         while i >= 0:
             if name.lexeme in self.scopes[i]:
@@ -74,18 +75,18 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
     def end_scope(self):
         for name, var_state in self.scopes.pop().items():
             if not var_state.used:
-                lox.error_token(var_state.name, f"Unused local variable '{name}'.")
+                lox.lox.error_token(var_state.name, f"Unused local variable '{name}'.")
 
     def make_scope(self):
         return _ResolverMakeScope(self)
 
-    def declare(self, name: Token):
+    def declare(self, name: 'lox.Token'):
         if self.scopes:
             if name.lexeme in self.scopes[-1]:
-                lox.error_token(name, 'Already a variable with this name in this scope.')
+                lox.lox.error_token(name, 'Already a variable with this name in this scope.')
             self.scopes[-1][name.lexeme] = VarState(name)
 
-    def define(self, name: Token):
+    def define(self, name: 'lox.Token'):
         if self.scopes:
             self.scopes[-1][name.lexeme].defined = True
 
@@ -95,7 +96,7 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
 
     def visit_break_stmt(self, s: stmt.Break) -> None:
         if not self.loop_depth:
-            lox.error_token(s.keyword, "Break outside a loop.")
+            lox.lox.error_token(s.keyword, "Break outside a loop.")
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.resolve(s.expression)
@@ -116,7 +117,7 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
 
     def visit_return_stmt(self, s: stmt.Return) -> None:
         if self.current_function == FunctionType.NONE:
-            lox.error_token(s.keyword, "Can't return from top-level code.")
+            lox.lox.error_token(s.keyword, "Can't return from top-level code.")
         if s.value:
             self.resolve(s.value)
 
@@ -164,11 +165,10 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
         self.resolve(e.right)
 
     def visit_variable_expr(self, e: expr.Variable) -> None:
-        if (self.scopes
-            and (state := self.scopes[-1].get(e.name.lexeme))
-            and not state.defined  # noqa
-        ):
-            lox.error_token(e.name, "Can't read local variable in its own initializer.")
+        if self.scopes:
+            state = self.scopes[-1].get(e.name.lexeme)
+            if state and not state.defined:
+                lox.lox.error_token(e.name, "Can't read local variable in its own initializer.")
 
         self.resolve_local(e, e.name)
 

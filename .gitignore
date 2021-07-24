@@ -1,5 +1,6 @@
 db.sqlite3
 /venv
+/venv.pypy
 
 *.py[oc]
 **/__pycache__

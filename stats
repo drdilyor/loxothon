@@ -25,7 +25,7 @@ echo '=== NON-EMPTY LINES OF CODE ==='
 
 files-git | xargs cat | grep -Ev '^\s*$' | wc -l
 
-echo '=== FULL LINES OF CODE ==='
+echo '=== TOTAL LINES OF CODE ==='
 if [[ $verbose == 1 ]]; then
   files-git | xargs wc -l | sort -n
 else

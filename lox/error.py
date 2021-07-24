@@ -1,8 +1,8 @@
-from lox.token import Token
+import lox
 
 
 class LoxRuntimeError(Exception):
-    def __init__(self, token: Token, message: str):
+    def __init__(self, token: 'lox.Token', message: str):
         self.token = token
         self.message = message
         super().__init__(message)
@@ -18,4 +18,4 @@ class LoxReturn(Exception):
         self.value = value
 
 
-__all__ = ['LoxRuntimeError', 'LoxStopIteration']
+__all__ = ['LoxRuntimeError', 'LoxStopIteration', 'LoxReturn']
