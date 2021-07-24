@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 
 from lox import Interpreter, Parser, Scanner, LoxRuntimeError
@@ -38,7 +40,7 @@ def test_divide_by_zero():
     assert value != value  # only nan doesn't equal to itself!
 
 
-def code(source: str) -> list[str]:
+def code(source: str) -> List[str]:
     return list(filter(bool, map(str.strip, source.strip().split('\n'))))
 
 

@@ -3,7 +3,9 @@ from lox import lox
 
 
 def interpert(s):
-    Resolver(interpreter := Interpreter()).resolve(statements := Parser(Scanner(s).scan_tokens()).expression())
+    interpreter = Interpreter()
+    statements = Parser(Scanner(s).scan_tokens()).expression()
+    Resolver(interpreter).resolve(statements)
     return interpreter.interpret_expression(statements)
 
 

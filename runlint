@@ -1,0 +1,10 @@
+#!/bin/bash
+source venv/bin/activate
+flake8 lox/callable.py \
+       lox/environment.py \
+       lox/error.py \
+       lox/interpreter.py \
+       lox/lox.py \
+       lox/parser.py \
+       lox/resolver.py \
+       lox/scanner.py \

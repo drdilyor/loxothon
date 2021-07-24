@@ -75,7 +75,8 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
     def end_scope(self):
         for name, var_state in self.scopes.pop().items():
             if not var_state.used:
-                lox.lox.error_token(var_state.name, f"Unused local variable '{name}'.")
+                lox.lox.error_token(
+                    var_state.name, f"Unused local variable '{name}'.")
 
     def make_scope(self):
         return _ResolverMakeScope(self)
@@ -83,7 +84,8 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
     def declare(self, name: 'lox.Token'):
         if self.scopes:
             if name.lexeme in self.scopes[-1]:
-                lox.lox.error_token(name, 'Already a variable with this name in this scope.')
+                lox.lox.error_token(
+                    name, 'Already a variable with this name in this scope.')
             self.scopes[-1][name.lexeme] = VarState(name)
 
     def define(self, name: 'lox.Token'):
@@ -168,7 +170,8 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
         if self.scopes:
             state = self.scopes[-1].get(e.name.lexeme)
             if state and not state.defined:
-                lox.lox.error_token(e.name, "Can't read local variable in its own initializer.")
+                message = "Can't read local variable in its own initializer."
+                lox.lox.error_token(e.name, message)
 
         self.resolve_local(e, e.name)
 

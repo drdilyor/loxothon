@@ -1,9 +1,6 @@
 #!/bin/bash
 source venv/bin/activate
-flake8 lox/environment.py \
-       lox/error.py \
-       lox/interpreter.py \
-       lox/lox.py \
-       lox/parser.py \
-       lox/scanner.py \
-&& rm -f .coverage && coverage run -m pytest --capture=sys && coverage report -m
+if [ "$1" != "nolint" ]; then
+ ./runlint || exit $?
+fi
+rm -f .coverage && coverage run -m pytest --capture=sys && coverage report -m

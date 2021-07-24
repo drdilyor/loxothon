@@ -8,7 +8,7 @@ import lox
 class LoxCallable(ABC):
     @abstractmethod
     def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
-        ...
+        ...  # pragma: no cover
 
     @abstractmethod
     def arity(self) -> int: ...
