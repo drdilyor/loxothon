@@ -1,5 +1,6 @@
-import re
 from pathlib import Path
+import re
+from typing import Tuple, List
 
 import pytest
 
@@ -15,14 +16,19 @@ def reset_had_error():
     lox.had_error = False
     lox.had_runtime_error = False
 
+def removeprefix(p: str, s: str) -> str:
+    return (s, s[len(p):])[s.startswith(p)]
 
-def gather_tests():
-    cdir = Path(__file__).parent.absolute()
+def gather_tests() -> Tuple[List[Tuple[str, object]], List[str]]:
+    cdir = Path(__file__).parent
     results = []
+    ids = []
 
     for file in cdir.glob('**/*.lox'):
         with open(file) as f:
             source = f.read()
+        ids.append(removeprefix('/', removeprefix(str(cdir), str(file))))
+
         if source.startswith('// expect: runtime-error'):
             results.append((source, expect_runtime_error))
         elif source.startswith('// expect: resolve-error'):
@@ -35,10 +41,12 @@ def gather_tests():
             expect = ''.join(f'{i}\n' for i in expects)
             results.append((source, expect))
 
-    return results
+    return results, ids
 
 
-@pytest.mark.parametrize('s,expect', gather_tests())
+tests = gather_tests()
+
+@pytest.mark.parametrize('s,expect', tests[0], ids=tests[1])
 def test_interpreter(s, expect, capsys):
     statements = Parser(Scanner(s).scan_tokens()).parse()
     if lox.had_error:
