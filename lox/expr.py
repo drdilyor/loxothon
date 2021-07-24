@@ -46,6 +46,14 @@ class Conditional(Expr):
         return visitor.visit_conditional_expr(self)
 
 @dataclass(eq=False, frozen=True)
+class Get(Expr):
+    object: Expr
+    name: Token
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_get_expr(self)
+
+@dataclass(eq=False, frozen=True)
 class Grouping(Expr):
     expression: Expr
 
@@ -67,6 +75,22 @@ class Logical(Expr):
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_logical_expr(self)
+
+@dataclass(eq=False, frozen=True)
+class Set(Expr):
+    object: Expr
+    name: Token
+    value: Expr
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_set_expr(self)
+
+@dataclass(eq=False, frozen=True)
+class This(Expr):
+    keyword: Token
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_this_expr(self)
 
 @dataclass(eq=False, frozen=True)
 class Unary(Expr):
@@ -95,11 +119,17 @@ class Visitor(Generic[R], ABC):
     @abstractmethod
     def visit_conditional_expr(self, e: Conditional) -> R: ...
     @abstractmethod
+    def visit_get_expr(self, e: Get) -> R: ...
+    @abstractmethod
     def visit_grouping_expr(self, e: Grouping) -> R: ...
     @abstractmethod
     def visit_literal_expr(self, e: Literal) -> R: ...
     @abstractmethod
     def visit_logical_expr(self, e: Logical) -> R: ...
+    @abstractmethod
+    def visit_set_expr(self, e: Set) -> R: ...
+    @abstractmethod
+    def visit_this_expr(self, e: This) -> R: ...
     @abstractmethod
     def visit_unary_expr(self, e: Unary) -> R: ...
     @abstractmethod

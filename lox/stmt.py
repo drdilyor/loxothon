@@ -26,6 +26,14 @@ class Break(Stmt):
         return visitor.visit_break_stmt(self)
 
 @dataclass(eq=False, frozen=True)
+class Class(Stmt):
+    name: Token
+    methods: List['Function']
+
+    def accept(self, visitor: 'Visitor[T]') -> T:
+        return visitor.visit_class_stmt(self)
+
+@dataclass(eq=False, frozen=True)
 class Expression(Stmt):
     expression: Expr
 
@@ -88,6 +96,8 @@ class Visitor(Generic[R], ABC):
     def visit_block_stmt(self, s: Block) -> R: ...
     @abstractmethod
     def visit_break_stmt(self, s: Break) -> R: ...
+    @abstractmethod
+    def visit_class_stmt(self, s: Class) -> R: ...
     @abstractmethod
     def visit_expression_stmt(self, s: Expression) -> R: ...
     @abstractmethod

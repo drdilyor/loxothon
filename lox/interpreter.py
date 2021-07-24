@@ -53,6 +53,14 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_block_stmt(self, s: stmt.Block) -> None:
         self.execute_block(s.statements, lox.Environment(self.environment))
 
+    def visit_class_stmt(self, s: stmt.Class) -> None:
+        class_ = lox.LoxClass(s.name, {
+            i.name.lexeme: lox.LoxFunction(
+                i, self.environment, i.name.lexeme == 'init')
+            for i in s.methods
+        })
+        self.environment.define(s.name.lexeme, class_)
+
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
         self.evaluate(s.expression)
 
@@ -162,6 +170,13 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         else:
             return e.else_branch.accept(self)
 
+    def visit_get_expr(self, e: expr.Get):
+        instance: 'lox.LoxInstance' = e.object.accept(self)
+        if isinstance(instance, lox.LoxInstance):
+            return instance.get(e.name)
+        lox.lox.error_token(e.name,
+                            'Can only access properties on instances.')
+
     def visit_grouping_expr(self, e: expr.Grouping):
         return e.expression.accept(self)
 
@@ -177,6 +192,16 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
             if not self.is_truthy(left):
                 return left
         return self.evaluate(e.right)
+
+    def visit_set_expr(self, e: expr.Set):
+        instance = self.evaluate(e.object)
+        if not isinstance(instance, lox.LoxInstance):
+            lox.lox.error_token(
+                e.name, 'Can only set properties on instances.')
+        instance.set(e.name, self.evaluate(e.value))
+
+    def visit_this_expr(self, e: expr.This):
+        return self.look_up_variable(e.keyword, e)
 
     def visit_unary_expr(self, e: expr.Unary):
         a = e.right.accept(self)

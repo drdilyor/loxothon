@@ -22,6 +22,7 @@ def run_prompt() -> None:
     resolver = lox.Resolver(interpreter)
     debug = False
     while True:
+        had_error = False
         print(end='> ')
         try:
             source = input()
@@ -36,6 +37,8 @@ def run_prompt() -> None:
                         print(token)
 
                 statements = lox.Parser(tokens).parse_repl()
+                if debug:
+                    print(statements)
 
                 if had_error:
                     continue
@@ -52,7 +55,6 @@ def run_prompt() -> None:
 
         except KeyboardInterrupt:
             break
-        had_error = False
 
 
 def run(source: str) -> None:

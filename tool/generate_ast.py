@@ -50,9 +50,12 @@ define_ast('expr.py', 'Expr', {
     'Binary': ['left: Expr', 'operator: Token', 'right: Expr'],
     'Call': ['callee: Expr', 'paren: Token', 'arguments: List[Expr]'],
     'Conditional': ['condition: Expr', 'then_branch: Expr', 'else_branch: Expr'],
+    'Get': ['object: Expr', 'name: Token'],
     'Grouping': ['expression: Expr'],
     'Literal': ['value: Any'],
     'Logical': ['left: Expr', 'operator: Token', 'right: Expr'],
+    'Set': ['object: Expr', 'name: Token', 'value: Expr'],
+    'This': ['keyword: Token'],
     'Unary': ['operator: Token', 'right: Expr'],
     'Variable': ['name: Token'],
 }, imports=[
@@ -62,6 +65,7 @@ define_ast('expr.py', 'Expr', {
 define_ast('stmt.py', 'Stmt', {
     'Block': ['statements: List[Stmt]'],
     'Break': ['keyword: Token'],
+    'Class': ['name: Token', "methods: List['Function']"],
     'Expression': ['expression: Expr'],
     'Function': ['name: Token', 'params: List[Token]', 'body: List[Stmt]'],
     'If': ['condition: Expr', 'then_branch: Stmt', 'else_branch: Stmt'],

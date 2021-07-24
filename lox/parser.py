@@ -51,6 +51,8 @@ class Parser:
 
     def declaration(self) -> stmt.Stmt:
         try:
+            if self.match(TT.CLASS):
+                return self.class_declaration()
             if self.match(TT.FUN):
                 return self.fun_declaration(kind='function')
             if self.match(TT.VAR):
@@ -58,6 +60,17 @@ class Parser:
             return self.statement()
         except ParseError:
             self.synchronize()
+
+    def class_declaration(self):
+        name = self.consume(TT.IDENTIFIER, 'Expect class name.')
+        self.consume(TT.LEFT_BRACE, "Expect '{' after class name.")
+
+        methods = []
+        while not self.is_at_end and self.peek().type != TT.RIGHT_BRACE:
+            methods.append(self.fun_declaration('method'))
+
+        self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
+        return stmt.Class(name, methods)  # noqa
 
     def fun_declaration(self, kind: str) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')
@@ -70,10 +83,10 @@ class Parser:
                 first = False
 
                 if len(parameters) >= 255:
-                    self.error(self.peek(),
-                               "Can't have more than 255 parameters.")
-                parameters.append(self.consume(TT.IDENTIFIER,
-                                               'Expect parameter name'))
+                    self.error(
+                        self.peek(), "Can't have more than 255 parameters.")
+                parameters.append(self.consume(
+                    TT.IDENTIFIER, 'Expect parameter name'))
         self.consume(TT.RIGHT_PAREN, "Expect ')' after parameters")
 
         self.consume(TT.LEFT_BRACE, f"Expect '{{' before {kind} body.")
@@ -214,6 +227,9 @@ class Parser:
             if isinstance(e, expr.Variable):
                 return expr.Assign(e.name, value)
 
+            if isinstance(e, expr.Get):
+                return expr.Set(e.object, e.name, value)
+
             self.error(equals, 'Invalid assignment target.')
 
         return e
@@ -264,7 +280,10 @@ class Parser:
         while True:
             if self.match(TT.LEFT_PAREN):
                 e = self.finish_call(e)
-            # not sure why this is here
+            elif self.match(TT.DOT):
+                name = self.consume(
+                    TT.IDENTIFIER, "Expect property name after '.'.")
+                e = expr.Get(e, name)
             else:
                 break  # pragma: no cover
         return e
@@ -291,6 +310,9 @@ class Parser:
 
         if self.match(TT.NUMBER, TT.STRING):
             return expr.Literal(self.previous().literal)
+
+        if self.match(TT.THIS):
+            return expr.This(self.previous())
 
         if self.match(TT.IDENTIFIER):
             return expr.Variable(self.previous())
