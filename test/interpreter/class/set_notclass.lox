@@ -1,0 +1,3 @@
+// expect: runtime-error
+var obj = "not a class";
+obj.name = "Name";

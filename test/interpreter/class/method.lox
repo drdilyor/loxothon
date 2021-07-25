@@ -1,0 +1,7 @@
+class Name {
+  hello(name) {
+    return "Hello " + name + "!";
+  }
+}
+
+print Name().hello("Name"); // expect: Hello Name!

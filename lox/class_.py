@@ -33,7 +33,7 @@ class LoxInstance:
         self.fields: dict[str, object] = {}
 
     def __str__(self):
-        return f'{self.class_.name.lexeme} instance'
+        return f'<instance {self.class_.name.lexeme}>'
 
     def get(self, name: 'lox.Token'):
         if name.lexeme in self.fields:
@@ -42,7 +42,7 @@ class LoxInstance:
         if method:
             return method.bind(self)
 
-        lox.lox.error_token(name, f"Undefined property '{name.lexeme}'.")
+        raise lox.LoxRuntimeError(name, f"Undefined property '{name.lexeme}'.")
 
     def set(self, name: 'lox.Token', value: object):
         self.fields[name.lexeme] = value

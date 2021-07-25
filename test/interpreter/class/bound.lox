@@ -1,0 +1,13 @@
+class Person {
+  hello() {
+    return "Hello, " + this.name;
+  }
+}
+
+var martin = Person();
+martin.name = "Martin";
+var anton = Person();
+anton.name = "Anton";
+anton.hello = martin.hello;
+
+print anton.hello(); // expect: Hello, Martin

@@ -1,0 +1,3 @@
+class App {}
+
+print App; // expect: <class App>

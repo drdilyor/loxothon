@@ -1,0 +1,9 @@
+class Person {
+  init(i) {
+    this.i = i;
+  }
+}
+
+var obj = Person(0);
+print obj.init(1); // expect: <instance Person>
+print obj.i; // expect: 1

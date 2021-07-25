@@ -54,11 +54,10 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         self.execute_block(s.statements, lox.Environment(self.environment))
 
     def visit_class_stmt(self, s: stmt.Class) -> None:
-        class_ = lox.LoxClass(s.name, {
-            i.name.lexeme: lox.LoxFunction(
-                i, self.environment, i.name.lexeme == 'init')
-            for i in s.methods
-        })
+        methods = {i.name.lexeme: lox.LoxFunction(
+                   i, self.environment, i.name.lexeme == 'init')
+                   for i in s.methods}
+        class_ = lox.LoxClass(s.name, methods)
         self.environment.define(s.name.lexeme, class_)
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
@@ -174,8 +173,8 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         instance: 'lox.LoxInstance' = e.object.accept(self)
         if isinstance(instance, lox.LoxInstance):
             return instance.get(e.name)
-        lox.lox.error_token(e.name,
-                            'Can only access properties on instances.')
+        raise lox.LoxRuntimeError(
+            e.name, 'Can only access properties on instances.')
 
     def visit_grouping_expr(self, e: expr.Grouping):
         return e.expression.accept(self)
@@ -196,7 +195,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_set_expr(self, e: expr.Set):
         instance = self.evaluate(e.object)
         if not isinstance(instance, lox.LoxInstance):
-            lox.lox.error_token(
+            raise lox.LoxRuntimeError(
                 e.name, 'Can only set properties on instances.')
         instance.set(e.name, self.evaluate(e.value))
 

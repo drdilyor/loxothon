@@ -1,0 +1,4 @@
+// expect: runtime-error
+class UndefinedProp {}
+
+print UndefinedProp().name;

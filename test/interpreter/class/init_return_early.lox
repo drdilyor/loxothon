@@ -1,0 +1,9 @@
+class Person {
+  init() {
+    this.foo = false;
+    return;
+    this.foo = true;
+  }
+}
+
+print Person().foo; // expect: false

@@ -1,0 +1,7 @@
+class Person {
+  init(name) {
+    this.name = name;
+  }
+}
+
+print Person("Name").name; // expect: Name

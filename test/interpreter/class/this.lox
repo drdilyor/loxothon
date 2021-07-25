@@ -1,0 +1,12 @@
+class Name {
+  set_name(name) {
+    this.name = name;
+    return this;
+  }
+  hello() {
+    print "Hello, " + this.name;
+  }
+}
+
+Name().set_name("Name").hello(); // expect: Hello, Name
+

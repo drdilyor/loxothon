@@ -1,0 +1,5 @@
+class Fields {}
+
+var obj = Fields();
+obj.name = "Lox";
+print obj.name; // expect: Lox

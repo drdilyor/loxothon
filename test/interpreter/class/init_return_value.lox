@@ -1,0 +1,8 @@
+// expect: resolve-error
+class Person {
+  init() {
+    return "String";
+  }
+}
+
+print Person();
