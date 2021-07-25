@@ -67,16 +67,22 @@ class Parser:
 
         methods = []
         class_methods = []
+        getters = []
         while not self.is_at_end and self.peek().type != TT.RIGHT_BRACE:
-            is_class = self.match(TT.CLASS)
-            function = self.fun_declaration('method')
-            if is_class:
-                class_methods.append(function)
+            if self.match(TT.CLASS):
+                class_methods.append(self.fun_declaration('method'))
+            elif self.match(TT.GET):
+                getters.append(self.class_getter())
             else:
-                methods.append(function)
+                methods.append(self.fun_declaration('method'))
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
-        return stmt.Class(name, methods, class_methods)  # noqa
+        return stmt.Class(name, methods, class_methods, getters)  # noqa
+
+    def class_getter(self):
+        name = self.consume(TT.IDENTIFIER, 'Expect getter name.')
+        self.consume(TT.LEFT_BRACE, "Expect '{' after getter name.")
+        return stmt.Function(name, [], self.block())
 
     def fun_declaration(self, kind: str) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')
@@ -353,6 +359,11 @@ class Parser:
             self.advance()
             return True
         return False
+
+    def check_next(self, type: TT) -> bool:
+        if self.is_at_end or self.tokens[self.current + 1].type == TT.EOF:
+            return False
+        return self.tokens[self.current + 1].type == type
 
     def consume(self, type: TT, message: str) -> Token:
         if self.peek().type == type:

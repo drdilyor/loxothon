@@ -39,16 +39,17 @@ class TokenType(enum.Enum):
     FALSE               = 54
     FUN                 = 55
     FOR                 = 56
-    IF                  = 57
-    NIL                 = 58
-    OR                  = 59
-    PRINT               = 60
-    RETURN              = 61
-    SUPER               = 62
-    THIS                = 63
-    TRUE                = 64
-    VAR                 = 65
-    WHILE               = 66
+    GET                 = 57
+    IF                  = 58
+    NIL                 = 59
+    OR                  = 60
+    PRINT               = 61
+    RETURN              = 62
+    SUPER               = 63
+    THIS                = 64
+    TRUE                = 65
+    VAR                 = 66
+    WHILE               = 67
 
     EOF                 = 0
 

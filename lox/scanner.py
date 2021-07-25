@@ -45,6 +45,7 @@ class Scanner:
         'false':    TokenType.FALSE,
         'for':      TokenType.FOR,
         'fun':      TokenType.FUN,
+        'get':      TokenType.GET,
         'if':       TokenType.IF,
         'nil':      TokenType.NIL,
         'or':       TokenType.OR,
