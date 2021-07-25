@@ -1,0 +1,10 @@
+class Circle {
+  init(radius) {
+    this.radius = radius;
+  }
+  area {
+    return this.radius * this.radius * 3.141592;
+  }
+}
+
+print Circle(4).area; // expect: 50.2655

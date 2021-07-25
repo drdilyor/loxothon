@@ -1,0 +1,4 @@
+// expect: error
+class My {
+  set name(value) {}
+}

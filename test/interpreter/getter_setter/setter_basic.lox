@@ -1,0 +1,16 @@
+class Person {
+  init(age) {
+    this.age = age;
+  }
+  birthyear {
+    return 2021 - this.age;
+  }
+  set birthyear {
+    this.age = 2021 - value;
+  }
+}
+
+var person = Person(17);
+print person.birthyear; // expect: 2004
+person.birthyear = 2005;
+print person.age; // expect: 16

@@ -45,6 +45,10 @@ class LoxFunction(LoxCallable):
     def is_getter(self):
         return self.declaration.is_getter
 
+    @property
+    def is_setter(self):
+        return self.declaration.is_setter
+
     def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
         environment = lox.Environment(self.closure)
         for param, argument in zip(self.declaration.params, arguments):

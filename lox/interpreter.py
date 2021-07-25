@@ -59,13 +59,24 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
                    for i in s.methods}
 
         class_methods = {i.name.lexeme: lox.LoxFunction(
-                   i, self.environment, False)
-                   for i in s.class_methods}
+                         i, self.environment, False)
+                         for i in s.class_methods}
 
-        class_ = lox.LoxClass(
-            lox.LoxClass(
-                None, f'<metaclass {s.name.lexeme}>', class_methods),
-            s.name.lexeme, methods)
+        setters = {i.name.lexeme: lox.LoxFunction(
+                   i, self.environment, False)
+                   for i in s.setters}
+
+        class_setters = {i.name.lexeme: lox.LoxFunction(
+                         i, self.environment, False)
+                         for i in s.class_setters}
+
+        meta = lox.LoxClass(
+            metaclass=None,
+            name=f'{s.name.lexeme} metaclass',
+            methods=class_methods,
+            setters=class_setters
+        )
+        class_ = lox.LoxClass(meta, s.name.lexeme, methods, setters)
         self.environment.define(s.name.lexeme, class_)
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
@@ -180,9 +191,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_get_expr(self, e: expr.Get):
         instance: 'lox.LoxInstance' = e.object.accept(self)
         if isinstance(instance, lox.LoxInstance):
-            prop = instance.get(e.name)
-            if isinstance(prop, lox.LoxFunction) and prop.is_getter:
-                return prop.call(self, [])
+            prop = instance.get(e.name, self)
             return prop
 
         raise lox.LoxRuntimeError(
@@ -209,7 +218,9 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         if not isinstance(instance, lox.LoxInstance):
             raise lox.LoxRuntimeError(
                 e.name, 'Can only set properties on instances.')
-        instance.set(e.name, self.evaluate(e.value))
+        value = self.evaluate(e.value)
+        instance.set(e.name, value, self)
+        return value
 
     def visit_this_expr(self, e: expr.This):
         return self.look_up_variable(e.keyword, e)

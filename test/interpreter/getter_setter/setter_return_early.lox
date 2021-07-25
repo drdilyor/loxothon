@@ -1,0 +1,17 @@
+class My {
+  init() {
+    this.name = "default";
+  }
+  set name {
+    if (value == "spam") {
+      return;
+    }
+    this._name = value;
+  }
+}
+
+var obj = My();
+print obj.name = "spam"; // expect: spam
+
+print obj._name; // expect: default
+

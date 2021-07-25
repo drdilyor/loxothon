@@ -1,0 +1,8 @@
+class My {
+  set name {
+    value;
+    return;
+  }
+}
+
+print My.name = "foo"; // expect: foo

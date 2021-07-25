@@ -1,0 +1,7 @@
+class Math {
+  class __name__ {
+    return "Math";
+  }
+}
+
+print Math.__name__; // expect: Math

@@ -1,0 +1,7 @@
+class Math {
+  class set name {
+    print "set " + value;
+  }
+}
+
+Math.name = "foo"; // expect: set foo

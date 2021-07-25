@@ -67,22 +67,50 @@ class Parser:
 
         methods = []
         class_methods = []
+        setters = []
+        class_setters = []
         while not self.is_at_end and self.peek().type != TT.RIGHT_BRACE:
             if self.match(TT.CLASS):
-                class_methods.append(self.fun_declaration('method'))
+                result: stmt.Function = self.fun_declaration('method')  # noqa
+                if result.is_setter:
+                    class_setters.append(result)
+                else:
+                    class_methods.append(result)
             else:
-                methods.append(self.fun_declaration('method'))
+                result: stmt.Function = self.fun_declaration('method') # noqa
+                if result.is_setter:
+                    setters.append(result)
+                else:
+                    methods.append(result)
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
-        return stmt.Class(name, methods, class_methods)  # noqa
+        return stmt.Class(name, methods, setters, class_methods, class_setters)  # noqa
 
     def fun_declaration(self, kind: str) -> stmt.Stmt:
+        parameters = []
+        is_setter = kind == 'method' and self.match(TT.SET)
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')
 
-        is_getter = kind == 'method' and self.peek().type is TT.LEFT_BRACE
-        parameters = []
-        if not is_getter:
-            self.consume(TT.LEFT_PAREN, f"Expect '(' {kind} name.")
+        if is_setter:
+            kind = 'setter'
+            parameters = [Token(
+                TT.IDENTIFIER, 'value', None, self.previous().line
+            )]
+            if self.peek().type is TT.LEFT_PAREN:
+                self.error(
+                    self.peek(),
+                    "Setter doesn't have parameter list. The variable 'value' "
+                    "is automatically created in the setter scope.")
+
+        is_getter = (not is_setter
+                     and kind == 'method'
+                     and self.peek().type is TT.LEFT_BRACE)
+
+        if is_getter:
+            kind = 'getter'
+
+        if not (is_setter or is_getter):
+            self.consume(TT.LEFT_PAREN, f"Expect '(' after {kind} name.")
             parameters = []
 
             if not self.is_at_end and self.peek().type != TT.RIGHT_PAREN:
@@ -99,7 +127,7 @@ class Parser:
 
         self.consume(TT.LEFT_BRACE, f"Expect '{{' before {kind} body.")
         body = self.block()
-        return stmt.Function(name, parameters, body, is_getter)
+        return stmt.Function(name, parameters, body, is_getter, is_setter)
 
     def var_declaration(self) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, 'Expect variable name.')

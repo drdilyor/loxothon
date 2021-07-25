@@ -1,0 +1,4 @@
+// expect: resolve-error
+class My {
+  set name {}
+}

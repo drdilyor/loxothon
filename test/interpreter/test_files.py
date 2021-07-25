@@ -49,10 +49,11 @@ tests = gather_tests()
 @pytest.mark.parametrize('s,expect', tests[0], ids=tests[1])
 def test_interpreter(s, expect, capsys):
     statements = Parser(Scanner(s).scan_tokens()).parse()
-    if lox.had_error:
-        assert expect is expect_error
+    if expect is expect_error:
+        assert lox.had_error
         return
 
+    assert not lox.had_error
     interpreter = Interpreter()
     Resolver(interpreter).resolve(statements)
     if expect is expect_resolve_error:
