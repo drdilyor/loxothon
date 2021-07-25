@@ -39,7 +39,7 @@ class TokenType(enum.Enum):
     FALSE               = 54
     FUN                 = 55
     FOR                 = 56
-    GET                 = 57
+    SET                 = 57
     IF                  = 58
     NIL                 = 59
     OR                  = 60

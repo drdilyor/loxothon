@@ -35,9 +35,15 @@ class LoxFunction(LoxCallable):
         self.declaration = declaration
         self.closure = closure
         self.is_init = is_init
+        assert not (is_init and declaration.is_getter), \
+            "Cannot be init and getter at the same time."
 
     def __str__(self):
         return f'<fun {self.declaration.name.lexeme}>'
+
+    @property
+    def is_getter(self):
+        return self.declaration.is_getter
 
     def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
         environment = lox.Environment(self.closure)

@@ -65,14 +65,14 @@ define_ast('expr.py', 'Expr', {
 define_ast('stmt.py', 'Stmt', {
     'Block': ['statements: List[Stmt]'],
     'Break': ['keyword: Token'],
-    'Class': [
-        'name: Token',
-        "methods: List['Function']",
-        "class_methods: List['Function']",
-        "getters: List['Function']",
-    ],
+    'Class': ['name: Token', "methods: List['Function']", "class_methods: List['Function']"],
     'Expression': ['expression: Expr'],
-    'Function': ['name: Token', 'params: List[Token]', 'body: List[Stmt]'],
+    'Function': [
+        'name: Token',
+        'params: List[Token]',
+        'body: List[Stmt]',
+        'is_getter: bool',
+    ],
     'If': ['condition: Expr', 'then_branch: Stmt', 'else_branch: Stmt'],
     'Print': ['expression: Expr'],
     'Return': ['keyword: Token', 'value: Expr'],

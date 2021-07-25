@@ -30,7 +30,6 @@ class Class(Stmt):
     name: Token
     methods: List['Function']
     class_methods: List['Function']
-    getters: List['Function']
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_class_stmt(self)
@@ -47,6 +46,7 @@ class Function(Stmt):
     name: Token
     params: List[Token]
     body: List[Stmt]
+    is_getter: bool
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_function_stmt(self)

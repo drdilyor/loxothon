@@ -22,7 +22,6 @@ class FunctionType(Enum):
     FUNCTION = 1
     METHOD = 2
     INIT = 3
-    GETTER = 4
 
 
 class ClassType(Enum):
@@ -126,11 +125,6 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
             scope['this'] = VarState(None, True)
             for method in s.class_methods:
                 self.resolve_function(method, FunctionType.METHOD)
-
-        with self.make_scope() as scope:
-            scope['this'] = VarState(None, True)
-            for getter in s.getters:
-                self.resolve_function(getter, FunctionType.GETTER)
 
         self.current_class = enclosing_class
 

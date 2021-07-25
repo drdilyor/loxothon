@@ -67,43 +67,39 @@ class Parser:
 
         methods = []
         class_methods = []
-        getters = []
         while not self.is_at_end and self.peek().type != TT.RIGHT_BRACE:
             if self.match(TT.CLASS):
                 class_methods.append(self.fun_declaration('method'))
-            elif self.match(TT.GET):
-                getters.append(self.class_getter())
             else:
                 methods.append(self.fun_declaration('method'))
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
-        return stmt.Class(name, methods, class_methods, getters)  # noqa
-
-    def class_getter(self):
-        name = self.consume(TT.IDENTIFIER, 'Expect getter name.')
-        self.consume(TT.LEFT_BRACE, "Expect '{' after getter name.")
-        return stmt.Function(name, [], self.block())
+        return stmt.Class(name, methods, class_methods)  # noqa
 
     def fun_declaration(self, kind: str) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')
-        self.consume(TT.LEFT_PAREN, f"Expect '(' {kind} name.")
+
+        is_getter = kind == 'method' and self.peek().type is TT.LEFT_BRACE
         parameters = []
+        if not is_getter:
+            self.consume(TT.LEFT_PAREN, f"Expect '(' {kind} name.")
+            parameters = []
 
-        if not self.is_at_end and self.peek().type != TT.RIGHT_PAREN:
-            first = True
-            while first or self.match(TT.COMMA):
-                first = False
+            if not self.is_at_end and self.peek().type != TT.RIGHT_PAREN:
+                first = True
+                while first or self.match(TT.COMMA):
+                    first = False
+                    message = "Can't have more than 255 parameters."
+                    if len(parameters) >= 255:
+                        self.error(self.peek(), message)
 
-                if len(parameters) >= 255:
-                    self.error(
-                        self.peek(), "Can't have more than 255 parameters.")
-                parameters.append(self.consume(
-                    TT.IDENTIFIER, 'Expect parameter name'))
-        self.consume(TT.RIGHT_PAREN, "Expect ')' after parameters")
+                    parameters.append(self.consume(
+                        TT.IDENTIFIER, 'Expect parameter name'))
+            self.consume(TT.RIGHT_PAREN, "Expect ')' after parameters")
 
         self.consume(TT.LEFT_BRACE, f"Expect '{{' before {kind} body.")
         body = self.block()
-        return stmt.Function(name, parameters, body)
+        return stmt.Function(name, parameters, body, is_getter)
 
     def var_declaration(self) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, 'Expect variable name.')
@@ -359,11 +355,6 @@ class Parser:
             self.advance()
             return True
         return False
-
-    def check_next(self, type: TT) -> bool:
-        if self.is_at_end or self.tokens[self.current + 1].type == TT.EOF:
-            return False
-        return self.tokens[self.current + 1].type == type
 
     def consume(self, type: TT, message: str) -> Token:
         if self.peek().type == type:

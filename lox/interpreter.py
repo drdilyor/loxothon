@@ -62,15 +62,10 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
                    i, self.environment, False)
                    for i in s.class_methods}
 
-        getters = {
-            i.name.lexeme: lox.LoxFunction(i, self.environment, False)
-            for i in s.getters
-        }
-
         class_ = lox.LoxClass(
             lox.LoxClass(
-                None, f'<metaclass {s.name.lexeme}>', class_methods, {}),
-            s.name.lexeme, methods, getters)
+                None, f'<metaclass {s.name.lexeme}>', class_methods),
+            s.name.lexeme, methods)
         self.environment.define(s.name.lexeme, class_)
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
@@ -185,7 +180,11 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
     def visit_get_expr(self, e: expr.Get):
         instance: 'lox.LoxInstance' = e.object.accept(self)
         if isinstance(instance, lox.LoxInstance):
-            return instance.get(e.name, self)
+            prop = instance.get(e.name)
+            if isinstance(prop, lox.LoxFunction) and prop.is_getter:
+                return prop.call(self, [])
+            return prop
+
         raise lox.LoxRuntimeError(
             e.name, 'Can only access properties on instances and classes.')
 
