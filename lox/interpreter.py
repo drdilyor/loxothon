@@ -57,7 +57,16 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         methods = {i.name.lexeme: lox.LoxFunction(
                    i, self.environment, i.name.lexeme == 'init')
                    for i in s.methods}
-        class_ = lox.LoxClass(s.name, methods)
+
+        class_methods = {i.name.lexeme: lox.LoxFunction(
+                   i, self.environment, False)
+                   for i in s.class_methods}
+
+        class_ = lox.LoxClass(
+            lox.LoxClass(
+                None, f'<metaclass {s.name.lexeme}>', class_methods,
+            ),
+            s.name.lexeme, methods)
         self.environment.define(s.name.lexeme, class_)
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:
@@ -174,7 +183,7 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         if isinstance(instance, lox.LoxInstance):
             return instance.get(e.name)
         raise lox.LoxRuntimeError(
-            e.name, 'Can only access properties on instances.')
+            e.name, 'Can only access properties on instances and classes.')
 
     def visit_grouping_expr(self, e: expr.Grouping):
         return e.expression.accept(self)

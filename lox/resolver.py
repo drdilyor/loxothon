@@ -121,6 +121,11 @@ class Resolver(expr.Visitor[None], stmt.Visitor[None]):
                     else FunctionType.METHOD
                 self.resolve_function(method, declaration)
 
+        with self.make_scope() as scope:
+            scope['this'] = VarState(None, True)
+            for method in s.class_methods:
+                self.resolve_function(method, FunctionType.METHOD)
+
         self.current_class = enclosing_class
 
     def visit_expression_stmt(self, s: stmt.Expression) -> None:

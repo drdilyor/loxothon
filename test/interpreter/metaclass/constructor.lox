@@ -1,0 +1,9 @@
+class Person {
+  class new(name) {
+    var obj = this();
+    obj.name = name;
+    return obj;
+  }
+}
+
+print Person.new("Lox").name; // expect: Lox

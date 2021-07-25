@@ -1,0 +1,11 @@
+class Test {
+  class test() {
+    print this; // expect: <class Test>
+    print this.get_name(); // expect: MyName
+  }
+  class get_name() {
+    return "MyName";
+  }
+}
+
+Test.test();

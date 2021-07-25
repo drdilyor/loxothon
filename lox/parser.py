@@ -66,11 +66,17 @@ class Parser:
         self.consume(TT.LEFT_BRACE, "Expect '{' after class name.")
 
         methods = []
+        class_methods = []
         while not self.is_at_end and self.peek().type != TT.RIGHT_BRACE:
-            methods.append(self.fun_declaration('method'))
+            is_class = self.match(TT.CLASS)
+            function = self.fun_declaration('method')
+            if is_class:
+                class_methods.append(function)
+            else:
+                methods.append(function)
 
         self.consume(TT.RIGHT_BRACE, "Expect '}' after class body.")
-        return stmt.Class(name, methods)  # noqa
+        return stmt.Class(name, methods, class_methods)  # noqa
 
     def fun_declaration(self, kind: str) -> stmt.Stmt:
         name = self.consume(TT.IDENTIFIER, f'Expect {kind} name.')

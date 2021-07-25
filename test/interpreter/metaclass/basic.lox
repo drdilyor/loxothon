@@ -1,0 +1,7 @@
+class Math {
+  class square(x) {
+    return x * x;
+  }
+}
+
+print Math.square(3); // expect: 9

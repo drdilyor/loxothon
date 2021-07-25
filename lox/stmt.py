@@ -29,6 +29,7 @@ class Break(Stmt):
 class Class(Stmt):
     name: Token
     methods: List['Function']
+    class_methods: List['Function']
 
     def accept(self, visitor: 'Visitor[T]') -> T:
         return visitor.visit_class_stmt(self)
