@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Online Playground | Loxothon</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <script type="text/javascript" src="brython.js"></script>
+  <script type="text/javascript" src="brython_modules.js"></script>
+  <style>
+    .code {
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body onload="brython(1)">
+<div class="hero">
+  <div class="hero-body">
+    <h1 class="title is-2">Loxothon</h1>
+    <p class="subtitle is-5">Lox language python implementation. Online playground.</p>
+    <form class="columns is-multiline" id="form">
+      <div class="column is-full is-narrow-widescreen">
+        <textarea class="textarea code is-family-monospace" name="input" id="input" cols="80" rows="10">
+class Math {
+  class pi {
+    return 3.14159;
+  }
+  class fib(n) {
+    if (n <= 1) return n;
+    return this.fib(n - 2) + this.fib(n - 1);
+  }
+}
+
+
+print Math.pi;
+for (var i = 0; i < 5; i = i + 1) {
+  print Math.fib(i);
+}
+
+
+        </textarea>
+      </div>
+      <div class="column">
+        <button class="button is-primary" type="submit">Run</button>
+        <p class="is-size-5">Result:</p>
+        <p class="code has-text-black is-family-monospace" id="result"></p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+if (localStorage.savedInput)
+  document.getElementById('input').value = localStorage.getItem('savedInput')
+
+function save() {
+  localStorage.setItem('savedInput', document.getElementById('input').value)
+}
+
+window.addEventListener('beforeunload', save)
+</script>
+
+<script type="text/python">
+# to make brython happy
+import abc
+import enum
+import time
+import typing
+import collections
+
+from browser import document, bind
+import lox
+lox.lox.run(' print "hello";')
+
+class mystdout:
+    def write(self, n, *args):
+        document['result'].innerHTML += (n
+            .replace('<', '&lt;')
+            .replace('>', '&gt;')
+            .replace('\n', '<br>')
+        )
+
+mystdout = mystdout()
+
+@bind(document['form'], 'submit')
+def on_submit(e):
+    import sys
+    e.preventDefault()
+
+    # patching monkeys
+    document['result'].innerHTML = ''
+    original_stdout = sys.stdout
+    sys.stdout = mystdout
+    lox.lox.run(e.target.input.value)
+    sys.stdout = original_stdout
+
+</script>
+
+</body>
+</html>
