@@ -16,8 +16,7 @@ jobs:
         run: |
           python3 -m venv venv \
           && source venv/bin/activate \
-          && pip install -r requirements.dev.txt \
-          && pip install -r requirements.optional.txt
+          && pip install -r requirements.dev.txt
       - name: Lint with flake8
         run: ./runlint
       - name: Test with pytest

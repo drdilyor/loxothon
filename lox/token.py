@@ -1,7 +1,5 @@
-from typing import Optional
-
-from dataclasses import dataclass
 import enum
+from typing import Optional, NamedTuple
 
 
 class TokenType(enum.Enum):
@@ -73,8 +71,7 @@ class TokenType(enum.Enum):
 # tokens having the same line number - returns the same number, the dict gets
 # confused and our lox program blows up.
 
-@dataclass(eq=False, frozen=True)
-class Token:
+class Token(NamedTuple):
     type: TokenType
     lexeme: str
     literal: Optional[str]

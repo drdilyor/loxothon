@@ -55,20 +55,20 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
 
     def visit_class_stmt(self, s: stmt.Class) -> None:
         methods = {i.name.lexeme: lox.LoxFunction(
-                   i, self.environment, i.name.lexeme == 'init')
-                   for i in s.methods}
+            i, self.environment, i.name.lexeme == 'init')
+            for i in s.methods}
 
         class_methods = {i.name.lexeme: lox.LoxFunction(
-                         i, self.environment, False)
-                         for i in s.class_methods}
+            i, self.environment, False)
+            for i in s.class_methods}
 
         setters = {i.name.lexeme: lox.LoxFunction(
-                   i, self.environment, False)
-                   for i in s.setters}
+            i, self.environment, False)
+            for i in s.setters}
 
         class_setters = {i.name.lexeme: lox.LoxFunction(
-                         i, self.environment, False)
-                         for i in s.class_setters}
+            i, self.environment, False)
+            for i in s.class_setters}
 
         meta = lox.LoxClass(
             metaclass=None,
@@ -128,6 +128,9 @@ class Interpreter(expr.Visitor[object], stmt.Visitor[None]):
         o = e.operator.type
 
         if o == TT.PLUS:
+            _ = isinstance
+            if _(a, str) and _(b, float) or _(a, float) and _(b, str):
+                return str(a) + str(b)
             try:
                 return a + b
             except TypeError:

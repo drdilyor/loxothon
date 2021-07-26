@@ -1,11 +1,11 @@
-from typing import Optional
+from typing import Optional, Dict
 
 import lox
 
 
 class Environment:
     def __init__(self, enclosing: Optional['Environment'] = None):
-        self.values: dict[str, object] = {}
+        self.values: Dict[str, object] = {}
         self.enclosing = enclosing
 
     def define(self, name: str, value: object) -> None:

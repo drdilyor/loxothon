@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
 import time
+from abc import ABC, abstractmethod
 
-import lox.stmt as stmt
 import lox
+import lox.stmt as stmt
 
 
 class LoxCallable(ABC):
@@ -47,7 +47,8 @@ class LoxFunction(LoxCallable):
 
     @property
     def is_setter(self):
-        return self.declaration.is_setter
+        # this is actually unused
+        return self.declaration.is_setter  # pragma: no cover
 
     def call(self, interpreter: 'lox.Interpreter', arguments: list) -> object:
         environment = lox.Environment(self.closure)
